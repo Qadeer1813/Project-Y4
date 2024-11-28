@@ -1,0 +1,221 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.17 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.17">
+  <diagram name="Page-1" id="waYj_LjJ3B1sP8B8NSta">
+    <mxGraphModel dx="1195" dy="697" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-1" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 16px;&quot;&gt;Elderly Care Management System&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="354" y="544" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-2" value="&lt;font style=&quot;font-size: 16px;&quot; face=&quot;Times New Roman&quot;&gt;Carer&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="720" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-3" value="&lt;font style=&quot;font-size: 16px;&quot; face=&quot;Times New Roman&quot;&gt;Admin&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="380" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-5" value="&lt;font style=&quot;font-size: 16px;&quot; face=&quot;Times New Roman&quot;&gt;ECMS Secure Database&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="660" y="555" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-23" value="&lt;font face=&quot;Times New Roman&quot;&gt;CRUD Pateint Profile&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;rotation=30;" vertex="1" parent="1">
+          <mxGeometry x="270" y="418" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-24" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0;exitDx=0;exitDy=0;curved=1;" edge="1" parent="1" source="n1BvA2JlTXJsv-r--4ut-3" target="n1BvA2JlTXJsv-r--4ut-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="250" y="470" as="sourcePoint" />
+            <mxPoint x="300" y="420" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="370" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-26" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="n1BvA2JlTXJsv-r--4ut-1" target="n1BvA2JlTXJsv-r--4ut-5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="540" y="605" as="sourcePoint" />
+            <mxPoint x="590" y="555" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-27" value="&lt;font style=&quot;font-size: 12px;&quot; face=&quot;Times New Roman&quot;&gt;Save/Retrieve Pateint Profile&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="n1BvA2JlTXJsv-r--4ut-26">
+          <mxGeometry x="-0.4333" y="1" relative="1" as="geometry">
+            <mxPoint x="37" y="-9" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-28" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;curved=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="n1BvA2JlTXJsv-r--4ut-2" target="n1BvA2JlTXJsv-r--4ut-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="160" y="750" as="sourcePoint" />
+            <mxPoint x="210" y="700" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="220" y="640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-29" value="&lt;font style=&quot;font-size: 12px;&quot; face=&quot;Times New Roman&quot;&gt;Retrieve/Update Pateint Profile&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];rotation=327;" vertex="1" connectable="0" parent="n1BvA2JlTXJsv-r--4ut-28">
+          <mxGeometry x="0.0181" y="-17" relative="1" as="geometry">
+            <mxPoint x="-10" y="-15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-30" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;curved=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="160" y="390.9399999999999" as="sourcePoint" />
+            <mxPoint x="387.6473920797023" y="544.0046255632303" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="340" y="466" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-31" value="&lt;font face=&quot;Times New Roman&quot;&gt;CRUD Care Plan&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;rotation=35;" vertex="1" parent="1">
+          <mxGeometry x="255" y="440" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-33" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=1.002;exitY=0.534;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" target="n1BvA2JlTXJsv-r--4ut-5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="474" y="586.86" as="sourcePoint" />
+            <mxPoint x="659.76" y="583.14" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-34" value="&lt;font style=&quot;font-size: 12px;&quot; face=&quot;Times New Roman&quot;&gt;Save/Retrieve Care Plan&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="n1BvA2JlTXJsv-r--4ut-33">
+          <mxGeometry x="-0.4333" y="1" relative="1" as="geometry">
+            <mxPoint x="37" y="-9" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-35" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;curved=1;entryX=0.119;entryY=0.763;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" target="n1BvA2JlTXJsv-r--4ut-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="160" y="742.2" as="sourcePoint" />
+            <mxPoint x="365.7754760841674" y="614.9991156987228" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="250" y="650" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-36" value="&lt;font style=&quot;font-size: 12px;&quot; face=&quot;Times New Roman&quot;&gt;Retrieve/Update Care Plan&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];rotation=328;" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="255.00180541365341" y="653" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-37" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=0.819;exitY=0.904;exitDx=0;exitDy=0;exitPerimeter=0;entryX=-0.025;entryY=0.117;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="n1BvA2JlTXJsv-r--4ut-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="473" y="617" as="sourcePoint" />
+            <mxPoint x="660" y="615" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-38" value="&lt;font style=&quot;font-size: 12px;&quot; face=&quot;Times New Roman&quot;&gt;Save/Retrieve Care Plan&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="n1BvA2JlTXJsv-r--4ut-37">
+          <mxGeometry x="-0.4333" y="1" relative="1" as="geometry">
+            <mxPoint x="37" y="-9" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-39" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.217;entryY=0.075;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;curved=1;" edge="1" parent="1" source="n1BvA2JlTXJsv-r--4ut-3" target="n1BvA2JlTXJsv-r--4ut-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="140" y="480" as="sourcePoint" />
+            <mxPoint x="190" y="430" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="290" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-40" value="&lt;span style=&quot;font-family: &amp;quot;Times New Roman&amp;quot;;&quot;&gt;View/Update Medical Dashboard&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;rotation=36;" vertex="1" parent="1">
+          <mxGeometry x="210" y="463" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-42" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;curved=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" target="n1BvA2JlTXJsv-r--4ut-5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="440" y="550" as="sourcePoint" />
+            <mxPoint x="680" y="510" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="550" y="510" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-43" value="&lt;font style=&quot;font-size: 12px;&quot; face=&quot;Times New Roman&quot;&gt;Save/Retrieve Medical Information&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="550.0035675127252" y="520.0020609193446" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-44" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.228;entryY=0.962;entryDx=0;entryDy=0;entryPerimeter=0;curved=1;" edge="1" parent="1" target="n1BvA2JlTXJsv-r--4ut-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="160" y="760" as="sourcePoint" />
+            <mxPoint x="210" y="710" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="270" y="680" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-45" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;View/Update Medical Dashboard&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;rotation=329;" vertex="1" parent="1">
+          <mxGeometry x="194" y="656" width="160" height="27" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-47" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Retrieve Roster&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;rotation=328;" vertex="1" parent="1">
+          <mxGeometry x="231" y="683" width="86" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-49" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;CRUD Roster&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;rotation=30;" vertex="1" parent="1">
+          <mxGeometry x="231" y="470" width="76" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-50" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.412;exitY=1.005;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="n1BvA2JlTXJsv-r--4ut-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="340" y="694.5" as="sourcePoint" />
+            <mxPoint x="160" y="775" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-51" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.078;entryY=0.203;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="n1BvA2JlTXJsv-r--4ut-3" target="n1BvA2JlTXJsv-r--4ut-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="503" as="sourcePoint" />
+            <mxPoint x="220" y="453" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-52" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;curved=1;exitX=0.624;exitY=1.005;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="n1BvA2JlTXJsv-r--4ut-1" target="n1BvA2JlTXJsv-r--4ut-5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="500" y="678" as="sourcePoint" />
+            <mxPoint x="550" y="628" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="550" y="660" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-53" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Save/Retrieve Roster&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="495" y="615" width="110" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-54" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;curved=1;exitX=1;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="n1BvA2JlTXJsv-r--4ut-2" target="n1BvA2JlTXJsv-r--4ut-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="364" y="694.5" as="sourcePoint" />
+            <mxPoint x="414" y="644.5" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="280" y="740" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-55" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Create Incdent Report&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;rotation=328;" vertex="1" parent="1">
+          <mxGeometry x="241" y="693" width="86" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-56" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;curved=1;exitX=0.568;exitY=1.019;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="n1BvA2JlTXJsv-r--4ut-1" target="n1BvA2JlTXJsv-r--4ut-5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="410" y="680" as="sourcePoint" />
+            <mxPoint x="430" y="660" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="500" y="710" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-57" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Save Incident Report&lt;/span&gt;" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="480" y="639" width="110" height="6" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-59" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.613;entryY=0.019;entryDx=0;entryDy=0;entryPerimeter=0;curved=1;" edge="1" parent="1" target="n1BvA2JlTXJsv-r--4ut-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="695" y="555" as="sourcePoint" />
+            <mxPoint x="745" y="505" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="550" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-60" value="&lt;font face=&quot;Times New Roman&quot;&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;Send Alert on Report&lt;/span&gt;&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="549.9991174793442" y="478.00404087647877" as="geometry" />
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-61" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.856;entryY=-0.03;entryDx=0;entryDy=0;entryPerimeter=0;curved=1;" edge="1" parent="1" target="n1BvA2JlTXJsv-r--4ut-3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="420" y="543" as="sourcePoint" />
+            <mxPoint x="290" y="380" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="410" y="460" />
+              <mxPoint x="370" y="410" />
+              <mxPoint x="240" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="n1BvA2JlTXJsv-r--4ut-62" value="&lt;font face=&quot;Times New Roman&quot;&gt;Recieve Alert on Report&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;rotation=30;" vertex="1" parent="1">
+          <mxGeometry x="295" y="380" width="140" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

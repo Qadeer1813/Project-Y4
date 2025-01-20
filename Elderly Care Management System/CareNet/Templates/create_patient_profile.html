@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Elderly Care Management System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Care Portal</h1>
+         <div class="row">
+            <!-- Sidebar Column -->
+            <div class="col">
+                <div class="list-group">
+<!--                    Need to add navigation-->
+                </div>
+            </div>
+            <!-- Main Content Column -->
+         <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2> Create Patient Profile</h2>
+                </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'create_patient_profile' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="Name">Name:</label>
+                                <input type="text" class="form-control" id="Name" name="Name" placeholder="Enter name">
+                            </div>
+                            <div class="form-group">
+                                <label for="DOB">Date of Birth:</label>
+                                <input type="date" class="form-control" id="DOB" name="DOB">
+                            </div>
+                            <div class="form-group">
+                                <label for="Contact_Number">Contact Number</label>
+                                <input type="text" class="form-control" id="Contact_Number" name="Contact_Number" placeholder="Contact Number">
+                            </div>
+                            <div class="form-group">
+                                <label for="Email_Address">Email Address</label>
+                                <input type="email" class="form-control" id="Email_Address" name="Email_Address" placeholder="Email Address">
+                            </div>
+                            <div class="form-group">
+                                <label for="Home_Address">Home Address</label>
+                                <input type="text" class="form-control" id="Home_Address" name="Home_Address" placeholder="Home Address">
+                            </div>
+                            <div class="form-group">
+                                <label for="Next_Of_Kin_Name">Next Of Kin Name</label>
+                                <input type="text" class="form-control" id="Next_Of_Kin_Name" name="Next_Of_Kin_Name" placeholder="Next Of Kin Name">
+                            </div>
+                            <div class="form-group">
+                                <label for="Emergency_Contact_Number">Emergency Contact Number</label>
+                                <input type="text" class="form-control" id="Emergency_Contact_Number" name="Emergency_Contact_Number" placeholder="Emergency Contact Number">
+                            </div>
+                            <div class="form-group">
+                                <label for="Emergency_Email_Address">Next Of Kin Email Address</label>
+                                <input type="email" class="form-control" id="Emergency_Email_Address" name="Emergency_Email_Address" placeholder="Next Of Kin Email Address">
+                            </div>
+                            <div class="form-group">
+                                <label for="Next_Of_Kin_Home_Address">Next Of Kin Home Address</label>
+                                <input type="text" class="form-control" id="Next_Of_Kin_Home_Address" name="Next_Of_Kin_Home_Address" placeholder="Next Of Kin Home Address">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="reset" class="btn btn-primary">Clear</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+         </div>
+    </div>
+</body>
+</html>

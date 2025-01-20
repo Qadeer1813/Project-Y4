@@ -1,7 +1,7 @@
 import os
 import mysql.connector
 from dotenv import load_dotenv
-from functions import *
+from .functions import *
 
 # Load environment variables
 load_dotenv()
@@ -31,7 +31,7 @@ def load_key():
 
 # Function to format contact numbers to drop the 0
 def format_contact_number(number):
-    if number.startswith('0'):
+    if number and number.startswith('0'):
         number = '+353' + number[1:]
     return number
 

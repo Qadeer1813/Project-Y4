@@ -21,6 +21,6 @@ def create_patient_profile(request):
         create_patient(name, dob, contact_number, email_address, home_address, next_of_kin_name,
                        emergency_contact_number, next_of_kin_home_address, emergency_email_address)
 
-        return redirect('home')  # Adjust the redirect URL to an appropriate route in your application
+        return redirect('home')
     else:
         return render(request, 'create_patient_profile.html')

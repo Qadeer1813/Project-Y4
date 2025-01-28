@@ -1,29 +1,25 @@
-from cryptography.fernet import Fernet
+import requests
 
-# Encrypt the message using a key, converting the message and returning the encrypted result.
-def encrypt_message(message, key):
-    fernet = Fernet(key)
-    if isinstance(message, str):
-        return fernet.encrypt(message.encode())
-    return message
+# Encrypt the message by calling the API endpoint
+def encrypt_message(message):
+    url = 'http://localhost:8001/encrypt'
+    response = requests.post(url, json={"data": message})
+    if response.status_code == 200:
+        return response.json()['encrypted_data']
+    else:
+        raise Exception("Failed to encrypt message")
 
 # Decrypt the encrypted messages which is the patient data
-def decrypt_message(encrypted_message, key):
-    if not encrypted_message:
-        return ''
-    try:
-        fernet = Fernet(key)
-        if isinstance(encrypted_message, str):
-            # If it's already a string, encode it first
-            encrypted_message = encrypted_message.encode()
-        decrypted = fernet.decrypt(encrypted_message)
-        return decrypted.decode('utf-8')
-    except Exception as e:
-        print(f"Decryption error: {e}")
-        return "Error decrypting"
+def decrypt_message(encrypted_message):
+    url = 'http://localhost:8001/decrypt'
+    response = requests.post(url, json={"encrypted_data": encrypted_message})
+    if response.status_code == 200:
+        return response.json()['decrypted_data']
+    else:
+        raise Exception("Failed to decrypt message")
 
 # Decrypt selected fields of encrypted patient data rows and return them in readable form
-def decrypt_patient_data(patient_data, key):
+def decrypt_patient_data(patient_data):
     decrypted_patient_data = []
     for data in patient_data:
         decrypted_row = []
@@ -36,11 +32,11 @@ def decrypt_patient_data(patient_data, key):
             else:
                 try:
                     if column is not None:
-                        decrypted_row.append(decrypt_message(column, key))
+                        decrypted_row.append(decrypt_message(column))
                     else:
                         decrypted_row.append('')
                 except Exception as e:
                     decrypted_row.append("Error decrypting")
 
         decrypted_patient_data.append(decrypted_row)
-        return decrypted_patient_data
+    return decrypted_patient_data

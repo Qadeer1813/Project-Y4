@@ -1,20 +1,33 @@
 import requests
+from .config import API_TOKEN
+
+def get_headers():
+    """Return headers with authentication token"""
+    return {
+        "Authorization": f"Bearer {API_TOKEN}"
+    }
 
 # Encrypt the message by calling the API endpoint
 def encrypt_message(message):
     url = 'http://localhost:8001/encrypt'
-    response = requests.post(url, json={"data": message})
+    headers = get_headers()
+    response = requests.post(url, json={"data": message}, headers=headers)
     if response.status_code == 200:
         return response.json()['encrypted_data']
+    elif response.status_code == 401:
+        raise Exception("Authentication failed - invalid token")
     else:
         raise Exception("Failed to encrypt message")
 
 # Decrypt the encrypted messages which is the patient data
 def decrypt_message(encrypted_message):
     url = 'http://localhost:8001/decrypt'
-    response = requests.post(url, json={"encrypted_data": encrypted_message})
+    headers = get_headers()
+    response = requests.post(url, json={"encrypted_data": encrypted_message}, headers=headers)
     if response.status_code == 200:
         return response.json()['decrypted_data']
+    elif response.status_code == 401:
+        raise Exception("Authentication failed - invalid token")
     else:
         raise Exception("Failed to decrypt message")
 

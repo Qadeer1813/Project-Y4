@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from .app import create_patient
+from django.http import HttpResponse, JsonResponse
+from .app import create_patient, search_patient, decrypt_patient_data
 
 # Create your views here.
 def home(request):
@@ -24,3 +24,39 @@ def create_patient_profile(request):
         return redirect('home')
     else:
         return render(request, 'create_patient_profile.html')
+
+
+def search_patient_profile(request):
+    if request.method == 'POST':
+        search_type = request.POST.get('search_type')
+        search_value = request.POST.get('search_value')
+
+        # Search for patients based on search type
+        if search_type == 'name':
+            results = search_patient(name=search_value)
+        else:  # search_type == 'dob'
+            results = search_patient(dob=search_value)
+
+        if results:
+            # Decrypt the patient data
+            decrypted_results = decrypt_patient_data(results)
+            # Get the first result
+            patient = decrypted_results[0]
+
+            # Create a dictionary with the patient data
+            patient_data = {
+                'Name': patient[1],
+                'DOB': patient[2],
+                'Contact_Number': patient[3],
+                'Email_Address': patient[4],
+                'Home_Address': patient[5],
+                'Next_Of_Kin_Name': patient[6],
+                'Emergency_Contact_Number': patient[7],
+                'Next_Of_Kin_Home_Address': patient[8],
+                'Emergency_Email_Address': patient[9]
+            }
+            return JsonResponse({'status': 'success', 'patient': patient_data})
+        else:
+            return JsonResponse({'status': 'not_found'})
+
+    return render(request, 'search_patient_profile.html')

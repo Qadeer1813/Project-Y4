@@ -1,10 +1,13 @@
+import secrets
 from datetime import datetime
 import mysql.connector
 from cryptography.fernet import Fernet
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
 app = FastAPI(title="Key Management Server")
+security = HTTPBearer()
 
 def get_db_connection():
     try:
@@ -25,6 +28,10 @@ class KeyResponse(BaseModel):
     Is_Valid: bool
     Created_At: datetime
 
+class TokenResponse(BaseModel):
+    token: str
+    created_at: datetime
+
 class EncryptRequest(BaseModel):
     data: str
 
@@ -37,6 +44,50 @@ class DecryptRequest(BaseModel):
 class DecryptResponse(BaseModel):
     decrypted_data: str
 
+
+async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Check if token exists and is valid
+        cursor.execute("SELECT Is_Valid FROM api_tokens WHERE Token = %s", (token,))
+        result = cursor.fetchone()
+        if not result or not result[0]:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid or expired token"
+            )
+        return token
+    finally:
+        cursor.close()
+        conn.close()
+
+
+# New endpoint to generate API token
+@app.post("/generate-token", response_model=TokenResponse)
+async def generate_token():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Generate a secure token
+        token = secrets.token_urlsafe(32)
+
+        # Store token in database
+        cursor.execute(
+            "INSERT INTO api_tokens (Token) VALUES (%s)",
+            (token,)
+        )
+        conn.commit()
+
+        return {
+            "token": token,
+            "created_at": datetime.now()
+        }
+    finally:
+        cursor.close()
+        conn.close()
+
 @app.post("/generate-key")
 async def generate_key():
     conn = None
@@ -45,8 +96,7 @@ async def generate_key():
         # Generate new key using Fernet
         new_key = Fernet.generate_key()
 
-        # Store the raw key bytes encoded as base64
-        key_string = new_key.decode()  # Convert bytes to string for storage
+        key_string = new_key.decode()
 
         # Connect to database
         conn = get_db_connection()
@@ -61,7 +111,7 @@ async def generate_key():
             (key_string,)
         )
 
-        # Commit transaction
+        # Commit
         conn.commit()
 
         return {
@@ -81,7 +131,7 @@ async def generate_key():
             conn.close()
 
 @app.post("/encrypt", response_model=EncryptResponse)
-async def encrypt_data(request: EncryptRequest):
+async def encrypt_data(request: EncryptRequest, token: str = Depends(verify_token)):
     conn = get_db_connection()
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -108,7 +158,7 @@ async def encrypt_data(request: EncryptRequest):
 
 
 @app.post("/decrypt", response_model=DecryptResponse)
-async def decrypt_data(request: DecryptRequest):
+async def decrypt_data(request: DecryptRequest, token: str = Depends(verify_token)):
     conn = get_db_connection()
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")

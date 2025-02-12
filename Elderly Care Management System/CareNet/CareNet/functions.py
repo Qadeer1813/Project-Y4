@@ -1,5 +1,5 @@
 import requests
-from .config import API_TOKEN
+from .config import API_TOKEN, API_ENDPOINTS
 
 def get_headers():
     """Return headers with authentication token"""
@@ -9,9 +9,9 @@ def get_headers():
 
 # Encrypt the message by calling the API endpoint
 def encrypt_message(message):
-    url = 'http://localhost:8001/encrypt'
+    # url = 'http://localhost:8001/encrypt'
     headers = get_headers()
-    response = requests.post(url, json={"data": message}, headers=headers)
+    response = requests.post(API_ENDPOINTS['encrypt'], json={"data": message}, headers=headers)
     if response.status_code == 200:
         return response.json()['encrypted_data']
     elif response.status_code == 401:
@@ -21,9 +21,9 @@ def encrypt_message(message):
 
 # Decrypt the encrypted messages which is the patient data
 def decrypt_message(encrypted_message):
-    url = 'http://localhost:8001/decrypt'
+    # url = 'http://localhost:8001/decrypt'
     headers = get_headers()
-    response = requests.post(url, json={"encrypted_data": encrypted_message}, headers=headers)
+    response = requests.post(API_ENDPOINTS['decrypt'], json={"encrypted_data": encrypted_message}, headers=headers)
     if response.status_code == 200:
         return response.json()['decrypted_data']
     elif response.status_code == 401:

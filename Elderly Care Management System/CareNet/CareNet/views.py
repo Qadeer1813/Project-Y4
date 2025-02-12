@@ -25,37 +25,39 @@ def create_patient_profile(request):
     else:
         return render(request, 'create_patient_profile.html')
 
-
 def search_patient_profile(request):
     if request.method == 'POST':
         search_type = request.POST.get('search_type')
         search_value = request.POST.get('search_value')
 
         # Search for patients based on search type
-        if search_type == 'name':
+        if search_type == 'Name':
             results = search_patient(name=search_value)
-        else:  # search_type == 'dob'
+        else:  # search_type == 'DOB'
             results = search_patient(dob=search_value)
 
         if results:
             # Decrypt the patient data
             decrypted_results = decrypt_patient_data(results)
-            # Get the first result
-            patient = decrypted_results[0]
+            # Create a list to hold all patient data
+            patients_data = []
 
-            # Create a dictionary with the patient data
-            patient_data = {
-                'Name': patient[1],
-                'DOB': patient[2],
-                'Contact_Number': patient[3],
-                'Email_Address': patient[4],
-                'Home_Address': patient[5],
-                'Next_Of_Kin_Name': patient[6],
-                'Emergency_Contact_Number': patient[7],
-                'Next_Of_Kin_Home_Address': patient[8],
-                'Emergency_Email_Address': patient[9]
-            }
-            return JsonResponse({'status': 'success', 'patient': patient_data})
+            # Process all results
+            for patient in decrypted_results:
+                patient_data = {
+                    'Name': patient[1],
+                    'DOB': patient[2],
+                    'Contact_Number': patient[3],
+                    'Email_Address': patient[4],
+                    'Home_Address': patient[5],
+                    'Next_Of_Kin_Name': patient[6],
+                    'Emergency_Contact_Number': patient[7],
+                    'Next_Of_Kin_Home_Address': patient[8],
+                    'Emergency_Email_Address': patient[9]
+                }
+                patients_data.append(patient_data)
+
+            return JsonResponse({'status': 'success', 'patients': patients_data})
         else:
             return JsonResponse({'status': 'not_found'})
 

@@ -1,15 +1,10 @@
 import mysql.connector
 from .functions import *
+from .config import *
 
 def get_db_connection():
     try:
-        conn = mysql.connector.connect(
-            user='root',
-            password='Qadeerh03',
-            host='localhost',
-            database='ecms',
-            port=3306
-        )
+        conn = mysql.connector.connect(**DB_CONFIG)
         return conn
     except mysql.connector.Error as e:
         print(f"Error connecting to database: {e}")

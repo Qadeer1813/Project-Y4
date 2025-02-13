@@ -53,6 +53,7 @@ def create_patient(name, dob, contact_number, email_address, home_address, next_
         if conn:
             conn.close()
 
+# Search for patient profile
 def search_patient(name=None, dob=None):
     conn = None
     cursor = None
@@ -98,7 +99,8 @@ def search_patient(name=None, dob=None):
         if conn:
             conn.close()
 
-def update_patient(patient_id, name, dob, contact_number, email_address, home_address,
+# Update patient profile
+def update_patient(Patient_ID, name, dob, contact_number, email_address, home_address,
                   next_of_kin_name, emergency_contact_number, next_of_kin_home_address,
                   emergency_email_address):
     conn = get_db_connection()
@@ -130,7 +132,7 @@ def update_patient(patient_id, name, dob, contact_number, email_address, home_ad
                                     encrypted_email_address, encrypted_home_address,
                                     encrypted_next_of_kin_name, encrypted_emergency_contact_number,
                                     encrypted_next_of_kin_home_address, encrypted_emergency_email_address,
-                                    patient_id))
+                                    Patient_ID))
         conn.commit()
         return True
     except mysql.connector.Error as e:
@@ -142,6 +144,7 @@ def update_patient(patient_id, name, dob, contact_number, email_address, home_ad
         if conn:
             conn.close()
 
+# Delete Patient Profile
 def delete_patient(patient_id):
     conn = get_db_connection()
     cursor = conn.cursor()

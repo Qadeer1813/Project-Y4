@@ -70,7 +70,7 @@
             </div>
             <div class="card-body">
                 <form id="patientForm">
-                    <input type="hidden" id="Patient_Id">
+                    <input type="hidden" id="Patient_ID" name="Patient_ID">
                     <div class="form-group">
                         <label for="Name">Name:</label>
                         <input type="text" class="form-control patient-field" id="Name" name="Name">
@@ -109,7 +109,7 @@
                     </div>
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-primary" id="editButton">Edit</button>
-                        <button type="button" class="btn btn-success" id="saveButton" >Save</button>
+                        <button type="button" class="btn btn-success" id="saveButton">Save</button>
                         <button type="button" class="btn btn-danger" id="deleteButton">Delete</button>
                     </div>
                 </form>
@@ -178,8 +178,7 @@
                         $('#noResultsAlert').show();
                     }
                 },
-                error: function(xhr, errmsg, err) {
-                    console.log('Search error:', xhr.responseText); // Debug line
+                error: function() {
                     $('#resultsCard').hide();
                     $('#noResultsAlert').show();
                 }
@@ -192,7 +191,7 @@
             const patient = window.searchResults.patients[index];
 
             // Populate the detail form
-            $('#Patient_Id').val(patient.id);
+            $('#Patient_ID').val(patient.Patient_ID);
             $('#Name').val(patient.Name);
             $('#DOB').val(patient.DOB);
             $('#Contact_Number').val(patient.Contact_Number);
@@ -228,13 +227,13 @@
 
         // Save button
         $('#saveButton').click(function() {
-            let formData = $('#patientForm').serialize();
-            formData += '&Patient_Id=' + $('#patient_Id').val();
+            console.log('Form data before submit:', $('#patientForm').serialize());
+            console.log('Patient ID:', $('#Patient_ID').val());
 
             $.ajax({
                 url: '{% url "update_patient_profile" %}',
                 type: 'POST',
-                data: formData,
+                data: $('#patientForm').serialize() + '&csrfmiddlewaretoken=' + $('input[name=csrfmiddlewaretoken]').val(),
                 success: function(response) {
                     if (response.status === 'success') {
                         alert('Patient information updated successfully');
@@ -254,18 +253,20 @@
 
         // Delete button
         $('#deleteButton').click(function() {
+            const Patient_ID = $('#Patient_ID').val();
             if (confirm('Are you sure you want to delete this patient record?')) {
                 $.ajax({
                     url: '{% url "delete_patient_profile" %}',
                     type: 'POST',
                     data: {
                         csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
-                        Patient_Id: $('#Patient_Id').val()
+                        Patient_ID: Patient_ID
                     },
                     success: function(response) {
                         if (response.status === 'success') {
                             alert('Patient record deleted successfully');
                             $('#detailCard').hide();
+                            $('#resultsCard').show();
                             $('#searchForm').submit();
                         } else {
                             alert('Error deleting patient record');

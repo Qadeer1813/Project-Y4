@@ -50,7 +50,7 @@ def search_patient_profile(request):
             # Process all results
             for result in decrypted_results:
                 patient_data = {
-                    'Patient Id': result[0],
+                    'Patient_ID': result[0],
                     'Name': result[1],
                     'DOB': result[2],
                     'Contact_Number': result[3],
@@ -71,7 +71,7 @@ def search_patient_profile(request):
 
 def update_patient_profile(request):
     if request.method == 'POST':
-        patient_id = request.POST.get('Patient_Id')
+        Patient_ID = request.POST.get('Patient_ID')
         name = request.POST.get('Name')
         dob = request.POST.get('DOB')
         contact_number = request.POST.get('Contact_Number')
@@ -83,7 +83,7 @@ def update_patient_profile(request):
         emergency_email_address = request.POST.get('Emergency_Email_Address')
 
         success = update_patient(
-            patient_id, name, dob, contact_number, email_address, home_address,
+            Patient_ID, name, dob, contact_number, email_address, home_address,
             next_of_kin_name, emergency_contact_number, next_of_kin_home_address,
             emergency_email_address
         )
@@ -92,7 +92,7 @@ def update_patient_profile(request):
 
 def delete_patient_profile(request):
     if request.method == 'POST':
-        patient_id = request.POST.get('patient_id')
-        success = delete_patient(patient_id)
+        Patient_ID = request.POST.get('Patient_ID')
+        success = delete_patient(Patient_ID)
         return JsonResponse({'status': 'success' if success else 'error'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})

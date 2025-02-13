@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
-from .app import create_patient, search_patient, decrypt_patient_data
+from .app import create_patient, search_patient, decrypt_patient_data, update_patient, delete_patient
+
 
 # Create your views here.
 def home(request):
@@ -30,11 +31,15 @@ def search_patient_profile(request):
         search_type = request.POST.get('search_type')
         search_value = request.POST.get('search_value')
 
+        print(f"Searching with type: {search_type} and value: {search_value}")  # Debug log
+
         # Search for patients based on search type
         if search_type == 'Name':
             results = search_patient(name=search_value)
         else:  # search_type == 'DOB'
             results = search_patient(dob=search_value)
+
+        print(f"Found {len(results) if results else 0} results")  # Debug log
 
         if results:
             # Decrypt the patient data
@@ -43,17 +48,18 @@ def search_patient_profile(request):
             patients_data = []
 
             # Process all results
-            for patient in decrypted_results:
+            for result in decrypted_results:
                 patient_data = {
-                    'Name': patient[1],
-                    'DOB': patient[2],
-                    'Contact_Number': patient[3],
-                    'Email_Address': patient[4],
-                    'Home_Address': patient[5],
-                    'Next_Of_Kin_Name': patient[6],
-                    'Emergency_Contact_Number': patient[7],
-                    'Next_Of_Kin_Home_Address': patient[8],
-                    'Emergency_Email_Address': patient[9]
+                    'Patient Id': result[0],
+                    'Name': result[1],
+                    'DOB': result[2],
+                    'Contact_Number': result[3],
+                    'Email_Address': result[4],
+                    'Home_Address': result[5],
+                    'Next_Of_Kin_Name': result[6],
+                    'Emergency_Contact_Number': result[7],
+                    'Next_Of_Kin_Home_Address': result[8],
+                    'Emergency_Email_Address': result[9]
                 }
                 patients_data.append(patient_data)
 
@@ -62,3 +68,31 @@ def search_patient_profile(request):
             return JsonResponse({'status': 'not_found'})
 
     return render(request, 'search_patient_profile.html')
+
+def update_patient_profile(request):
+    if request.method == 'POST':
+        patient_id = request.POST.get('Patient_Id')
+        name = request.POST.get('Name')
+        dob = request.POST.get('DOB')
+        contact_number = request.POST.get('Contact_Number')
+        email_address = request.POST.get('Email_Address')
+        home_address = request.POST.get('Home_Address')
+        next_of_kin_name = request.POST.get('Next_Of_Kin_Name')
+        emergency_contact_number = request.POST.get('Emergency_Contact_Number')
+        next_of_kin_home_address = request.POST.get('Next_Of_Kin_Home_Address')
+        emergency_email_address = request.POST.get('Emergency_Email_Address')
+
+        success = update_patient(
+            patient_id, name, dob, contact_number, email_address, home_address,
+            next_of_kin_name, emergency_contact_number, next_of_kin_home_address,
+            emergency_email_address
+        )
+        return JsonResponse({'status': 'success' if success else 'error'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+def delete_patient_profile(request):
+    if request.method == 'POST':
+        patient_id = request.POST.get('patient_id')
+        success = delete_patient(patient_id)
+        return JsonResponse({'status': 'success' if success else 'error'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})

@@ -9,6 +9,7 @@ from pydantic import BaseModel
 app = FastAPI(title="Key Management Server")
 security = HTTPBearer()
 
+# Database
 def get_db_connection():
     try:
         conn = mysql.connector.connect(
@@ -44,7 +45,7 @@ class DecryptRequest(BaseModel):
 class DecryptResponse(BaseModel):
     decrypted_data: str
 
-
+# This function verifies if the tok
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
     conn = get_db_connection()
@@ -64,7 +65,7 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
         conn.close()
 
 
-# New endpoint to generate API token
+# Generate API token
 @app.post("/generate-token", response_model=TokenResponse)
 async def generate_token():
     conn = get_db_connection()
@@ -88,6 +89,7 @@ async def generate_token():
         cursor.close()
         conn.close()
 
+# Generate Key
 @app.post("/generate-key")
 async def generate_key():
     conn = None
@@ -130,6 +132,7 @@ async def generate_key():
         if conn and conn.is_connected():
             conn.close()
 
+# Encrypt
 @app.post("/encrypt", response_model=EncryptResponse)
 async def encrypt_data(request: EncryptRequest, token: str = Depends(verify_token)):
     conn = get_db_connection()
@@ -156,7 +159,7 @@ async def encrypt_data(request: EncryptRequest, token: str = Depends(verify_toke
         cursor.close()
         conn.close()
 
-
+# Decrypt
 @app.post("/decrypt", response_model=DecryptResponse)
 async def decrypt_data(request: DecryptRequest, token: str = Depends(verify_token)):
     conn = get_db_connection()

@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from .app import create_patient, search_patient, decrypt_patient_data, update_patient, delete_patient
 
-
 # Create your views here.
 def home(request):
     return render(request, 'home.html')

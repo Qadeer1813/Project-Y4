@@ -3,12 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <title>Care Net</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
-<body>
-    <h1>Care Net</h1>
-    <ul>
-        <li><a href="{% url 'create_patient_profile' %}">Create Patient Profile</a></li>
-        <li><a href="{% url 'search_patient_profile' %}">Search Patient</a></li>
-    </ul>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">Care Net</a>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Welcome to Care Net</h1>
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Quick Access</h5>
+                <div class="d-flex flex-column align-items-center">
+                    <div class="dropdown mb-2" style="width: 200px;">
+                        <button class="btn btn-primary w-100 dropdown-toggle" type="button" id="patientDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Patient Profile
+                        </button>
+                        <div class="dropdown-menu w-100" aria-labelledby="patientDropdown">
+                            <a class="dropdown-item" href="{% url 'create_patient_profile' %}">Create Patient Profile</a>
+                            <a class="dropdown-item" href="{% url 'search_patient_profile' %}">Search Patient</a>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-primary mb-2" style="width: 200px;">Roster</a>
+                    <a href="#" class="btn btn-primary mb-2" style="width: 200px;">Care Planner</a>
+                    <a href="#" class="btn btn-primary" style="width: 200px;">Medical Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

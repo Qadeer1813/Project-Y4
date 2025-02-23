@@ -5,9 +5,17 @@ from cryptography.fernet import Fernet
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 app = FastAPI(title="Key Management Server")
 security = HTTPBearer()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+async def read_root():
+    return FileResponse("static/keyserver.html")
 
 # Database
 def get_db_connection():

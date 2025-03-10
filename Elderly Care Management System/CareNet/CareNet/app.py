@@ -25,15 +25,15 @@ def create_patient(name, dob, contact_number, email_address, home_address, next_
         formatted_emergency_contact_number = format_contact_number(emergency_contact_number)
 
         # Encrypt all data
-        encrypted_name = encrypt_message(name)
-        encrypted_dob = encrypt_message(dob)
-        encrypted_contact_number = encrypt_message(formatted_contact_number)
-        encrypted_email_address = encrypt_message(email_address)
-        encrypted_home_address = encrypt_message(home_address)
-        encrypted_next_of_kin_name = encrypt_message(next_of_kin_name)
-        encrypted_emergency_contact_number = encrypt_message(formatted_emergency_contact_number)
-        encrypted_next_of_kin_home_address = encrypt_message(next_of_kin_home_address)
-        encrypted_emergency_email_address = encrypt_message(emergency_email_address)
+        encrypted_name = encrypt(name)
+        encrypted_dob = encrypt(dob)
+        encrypted_contact_number = encrypt(formatted_contact_number)
+        encrypted_email_address = encrypt(email_address)
+        encrypted_home_address = encrypt(home_address)
+        encrypted_next_of_kin_name = encrypt(next_of_kin_name)
+        encrypted_emergency_contact_number = encrypt(formatted_emergency_contact_number)
+        encrypted_next_of_kin_home_address = encrypt(next_of_kin_home_address)
+        encrypted_emergency_email_address = encrypt(emergency_email_address)
 
         # SQL query to insert a new record into the patient_profile table
         create_patient_profile = '''
@@ -71,7 +71,7 @@ def search_patient(name=None, dob=None):
 
             if name:
                 try:
-                    decrypted_name = decrypt_message(record[1])
+                    decrypted_name = decrypt(record[1])
                     if name.lower() not in decrypted_name.lower():
                         match = False
                 except Exception:
@@ -79,7 +79,7 @@ def search_patient(name=None, dob=None):
 
             if dob and match:
                 try:
-                    decrypted_dob = decrypt_message(record[2])
+                    decrypted_dob = decrypt(record[2])
                     if dob != decrypted_dob:
                         match = False
                 except Exception:
@@ -111,15 +111,15 @@ def update_patient(Patient_ID, name, dob, contact_number, email_address, home_ad
         formatted_emergency_contact_number = format_contact_number(emergency_contact_number)
 
         # Encrypt all data
-        encrypted_name = encrypt_message(name)
-        encrypted_dob = encrypt_message(dob)
-        encrypted_contact_number = encrypt_message(formatted_contact_number)
-        encrypted_email_address = encrypt_message(email_address)
-        encrypted_home_address = encrypt_message(home_address)
-        encrypted_next_of_kin_name = encrypt_message(next_of_kin_name)
-        encrypted_emergency_contact_number = encrypt_message(formatted_emergency_contact_number)
-        encrypted_next_of_kin_home_address = encrypt_message(next_of_kin_home_address)
-        encrypted_emergency_email_address = encrypt_message(emergency_email_address)
+        encrypted_name = encrypt(name)
+        encrypted_dob = encrypt(dob)
+        encrypted_contact_number = encrypt(formatted_contact_number)
+        encrypted_email_address = encrypt(email_address)
+        encrypted_home_address = encrypt(home_address)
+        encrypted_next_of_kin_name = encrypt(next_of_kin_name)
+        encrypted_emergency_contact_number = encrypt(formatted_emergency_contact_number)
+        encrypted_next_of_kin_home_address = encrypt(next_of_kin_home_address)
+        encrypted_emergency_email_address = encrypt(emergency_email_address)
 
         update_query = '''
         UPDATE patient_profile 

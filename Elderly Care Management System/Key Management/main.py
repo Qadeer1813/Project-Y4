@@ -41,17 +41,8 @@ class TokenResponse(BaseModel):
     token: str
     created_at: datetime
 
-class EncryptRequest(BaseModel):
-    data: str
-
-class EncryptResponse(BaseModel):
-    encrypted_data: str
-
-class DecryptRequest(BaseModel):
-    encrypted_data: str
-
-class DecryptResponse(BaseModel):
-    decrypted_data: str
+class CurrentKeyResponse(BaseModel):
+    encryption_key: str
 
 # This function verifies if the tok
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -140,9 +131,8 @@ async def generate_key():
         if conn and conn.is_connected():
             conn.close()
 
-# Encrypt
-@app.post("/encrypt", response_model=EncryptResponse)
-async def encrypt_data(request: EncryptRequest, token: str = Depends(verify_token)):
+@app.get("/current-key", response_model=CurrentKeyResponse)
+async def get_current_key(token: str = Depends(verify_token)):
     conn = get_db_connection()
     if conn is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
@@ -157,46 +147,7 @@ async def encrypt_data(request: EncryptRequest, token: str = Depends(verify_toke
         if not result:
             raise HTTPException(status_code=404, detail="No valid encryption key found")
 
-        key = result[0].encode()
-        f = Fernet(key)
-        encrypted_data = f.encrypt(request.data.encode())
-
-        return {"encrypted_data": encrypted_data.decode()}
-
-    finally:
-        cursor.close()
-        conn.close()
-
-# Decrypt
-@app.post("/decrypt", response_model=DecryptResponse)
-async def decrypt_data(request: DecryptRequest, token: str = Depends(verify_token)):
-    conn = get_db_connection()
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-
-    cursor = conn.cursor()
-    try:
-        cursor.execute(
-            "SELECT Encryption_Key FROM key_management WHERE Is_Valid = 1 ORDER BY Created_At DESC LIMIT 1"
-        )
-        result = cursor.fetchone()
-
-        if not result:
-            raise HTTPException(status_code=404, detail="No valid encryption key found")
-
-        try:
-            # Attempt decryption
-            key = result[0].encode()
-            f = Fernet(key)
-            decrypted_data = f.decrypt(request.encrypted_data.encode())
-            return {"decrypted_data": decrypted_data.decode()}
-
-        except Exception as e:
-            raise HTTPException(status_code=400, detail="Invalid encrypted data or wrong key")
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Decryption failed: {str(e)}")
-
+        return {"encryption_key": result[0]}
     finally:
         cursor.close()
         conn.close()

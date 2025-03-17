@@ -35,7 +35,7 @@
                                         <h5 class="card-title">Encryption Key Management</h5>
                                         <div class="d-flex">
                                             <button id="generateKey" class="btn btn-primary mr-2">Generate New Key</button>
-<!--                                            <button id="rotateKey" class="btn btn-warning">Rotate Key</button>-->
+                                            <button id="rotateKey" class="btn btn-warning">Rotate Key</button>
                                         </div>
                                         <div id="keyResult" class="mt-3" style="display: none;">
                                             <div class="alert alert-success">
@@ -80,19 +80,19 @@
             }
         });
 
-        // document.getElementById('rotateKey').addEventListener('click', async () => {
-        //     try {
-        //         const response = await fetch('/rotate-key', {
-        //             method: 'POST'
-        //         });
-        //         const data = await response.json();
-        //
-        //         document.getElementById('keyMessage').textContent = `Key rotated successfully! New Key ID: ${data.new_key_id}`;
-        //         document.getElementById('keyResult').style.display = 'block';
-        //     } catch (error) {
-        //         alert('Error rotating key: ' + error.message);
-        //     }
-        // });
+        document.getElementById('rotateKey').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/rotate-key', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                document.getElementById('keyMessage').textContent = `Key rotated successfully! New Key ID: ${data.new_key_id}`;
+                document.getElementById('keyResult').style.display = 'block';
+            } catch (error) {
+                alert('Error rotating key: ' + error.message);
+            }
+        });
     </script>
 </body>
 </html>

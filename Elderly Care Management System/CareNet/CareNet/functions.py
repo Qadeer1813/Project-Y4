@@ -13,8 +13,22 @@ def get_headers():
 def get_encryption_key():
     global current_key
 
-    # Return cached key if available
     if current_key:
+        headers = get_headers()
+        response = requests.post(
+            API_ENDPOINTS['check_key'],
+            headers=headers,
+            json={"current_key": current_key}
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("needs_refresh", False):
+                current_key = data.get("new_key")
+                print("Key has been rotated - using new key")
+        else:
+            return refresh_encryption_key()
+
         return current_key
 
     # Fetch new key from server
@@ -22,8 +36,8 @@ def get_encryption_key():
     response = requests.get(API_ENDPOINTS['current_key'], headers=headers)
 
     if response.status_code == 200:
-        _current_key = response.json()['encryption_key']
-        return _current_key
+        current_key = response.json()['encryption_key']
+        return current_key
     elif response.status_code == 401:
         raise Exception("Authentication failed - invalid token")
     else:

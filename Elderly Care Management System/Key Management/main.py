@@ -44,7 +44,14 @@ class TokenResponse(BaseModel):
 class CurrentKeyResponse(BaseModel):
     encryption_key: str
 
-# This function verifies if the tok
+class KeyCheckRequest(BaseModel):
+    current_key: str
+
+class KeyCheckResponse(BaseModel):
+    needs_refresh: bool
+    new_key: str = None
+
+# This function verifies if the token is valid
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
     conn = get_db_connection()
@@ -131,6 +138,52 @@ async def generate_key():
         if conn and conn.is_connected():
             conn.close()
 
+@app.post("/rotate-key")
+async def rotate_key():
+    conn = None
+    cursor = None
+    try:
+        new_key = Fernet.generate_key()
+        key_string = new_key.decode()
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT Encryption_Key FROM key_management WHERE Is_Valid = 1 ORDER BY Created_At DESC LIMIT 1"
+        )
+        result = cursor.fetchone()
+
+        if not result:
+            cursor.execute(
+                "INSERT INTO key_management (Encryption_Key, Is_Valid) VALUES (%s, 1)",
+                (key_string,)
+            )
+        else:
+            cursor.execute(
+                "INSERT INTO key_management (Encryption_Key, Is_Valid) VALUES (%s, 1)",
+                (key_string,)
+            )
+
+        # Commit
+        conn.commit()
+
+        return {
+            "message": "Key rotated successfully",
+            "new_key_id": cursor.lastrowid
+        }
+
+    except Exception as e:
+        if conn and conn.is_connected():
+            conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Key rotation failed: {str(e)}")
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
 @app.get("/current-key", response_model=CurrentKeyResponse)
 async def get_current_key(token: str = Depends(verify_token)):
     conn = get_db_connection()
@@ -148,6 +201,31 @@ async def get_current_key(token: str = Depends(verify_token)):
             raise HTTPException(status_code=404, detail="No valid encryption key found")
 
         return {"encryption_key": result[0]}
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.post("/check-key", response_model=KeyCheckResponse)
+async def check_key(request: KeyCheckRequest, token: str = Depends(verify_token)):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT Encryption_Key FROM key_management WHERE Is_Valid = 1 ORDER BY Created_At DESC LIMIT 1"
+        )
+        result = cursor.fetchone()
+
+        if not result:
+            raise HTTPException(status_code=404, detail="No key found")
+
+        current_db_key = result[0]
+        client_key = request.current_key
+
+        # Compare the keys
+        if current_db_key == client_key:
+            return {"needs_refresh": False}
+        else:
+            return {"needs_refresh": True, "new_key": current_db_key}
     finally:
         cursor.close()
         conn.close()

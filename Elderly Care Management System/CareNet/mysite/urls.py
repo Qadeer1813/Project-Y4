@@ -16,11 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from CareNet.views import home, create_patient_profile, search_patient_profile, update_patient_profile, delete_patient_profile
+from CareNet.views import home, create_patient_profile, search_patient_profile, update_patient_profile, delete_patient_profile, maintenance_mode
 from django.views.generic import RedirectView
 
 urlpatterns = [
     path('', home, name='home'),
+    path('maintenance/', maintenance_mode, name='maintenance_mode'),
     path('create_patient/', create_patient_profile, name='create_patient_profile'),
     path('search_patient/', search_patient_profile, name='search_patient_profile'),
     path('update_patient/', update_patient_profile, name='update_patient_profile'),

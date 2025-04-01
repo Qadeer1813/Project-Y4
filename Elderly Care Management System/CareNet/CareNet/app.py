@@ -161,3 +161,75 @@ def delete_patient(patient_id):
             cursor.close()
         if conn:
             conn.close()
+
+def reencryption():
+    print("Starting re-encryption process...")
+
+    try:
+        old_key = get_encryption_key()
+
+        refreshed_key = get_encryption_key(force_refresh=True)
+
+        if old_key == refreshed_key:
+            print("No manual rotation detected. Rotating key now...")
+            new_key = refresh_encryption_key()
+        else:
+            print("Manual key rotation detected. Using refreshed key.")
+            new_key = refreshed_key
+
+        if new_key == old_key:
+            raise Exception("Re-encryption failed: key did not rotate.")
+
+        fernet_old = Fernet(old_key.encode())
+        fernet_new = Fernet(new_key.encode())
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM patient_profile")
+        patients = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        failed_records = []
+
+        for patient in patients:
+            patient_id = patient[0]
+            encrypted_fields = patient[1:]
+            decrypted_fields = []
+
+            for field in encrypted_fields:
+                if field is not None:
+                    try:
+                        decrypted_field = fernet_old.decrypt(field.encode()).decode()
+                        re_encrypted_field = fernet_new.encrypt(decrypted_field.encode()).decode()
+                        decrypted_fields.append(re_encrypted_field)
+                    except Exception as e:
+                        print(f"Error processing patient {patient_id}: {e}")
+                        failed_records.append(patient_id)
+                        decrypted_fields.append(None)
+                else:
+                    decrypted_fields.append(None)
+
+            update_query = '''
+                UPDATE patient_profile 
+                SET Name=%s, DOB=%s, Contact_Number=%s, Email_Address=%s, 
+                    Home_Address=%s, Next_Of_Kin_Name=%s, Emergency_Contact_Number=%s, 
+                    Next_Of_Kin_Home_Address=%s, Emergency_Email_Address=%s
+                WHERE Patient_ID=%s
+            '''
+            cursor.execute(update_query, (*decrypted_fields, patient_id))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        if failed_records:
+            print(f"Warning: Failed to re-encrypt records for patients: {failed_records}")
+        else:
+            print("Re-encryption complete.")
+
+    except Exception as e:
+        print(f"Critical error during re-encryption: {e}")
+        raise

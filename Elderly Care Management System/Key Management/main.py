@@ -57,7 +57,6 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        # Check if token exists and is valid
         cursor.execute("SELECT Is_Valid FROM api_tokens WHERE Token = %s", (token,))
         result = cursor.fetchone()
         if not result or not result[0]:
@@ -77,10 +76,8 @@ async def generate_token():
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        # Generate a secure token
         token = secrets.token_urlsafe(32)
 
-        # Store token in database
         cursor.execute(
             "INSERT INTO api_tokens (Token) VALUES (%s)",
             (token,)
@@ -101,25 +98,17 @@ async def generate_key():
     conn = None
     cursor = None
     try:
-        # Generate new key using Fernet
         new_key = Fernet.generate_key()
-
         key_string = new_key.decode()
 
-        # Connect to database
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Update existing keys
         cursor.execute("UPDATE key_management SET Is_Valid = 0")
-
-        # Insert new key
         cursor.execute(
             "INSERT INTO key_management (Encryption_Key, Is_Valid) VALUES (%s, 1)",
             (key_string,)
         )
-
-        # Commit
         conn.commit()
 
         return {
@@ -149,23 +138,13 @@ async def rotate_key():
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        cursor.execute("UPDATE key_management SET Is_Valid = 0")
+
         cursor.execute(
-            "SELECT Encryption_Key FROM key_management WHERE Is_Valid = 1 ORDER BY Created_At DESC LIMIT 1"
+            "INSERT INTO key_management (Encryption_Key, Is_Valid) VALUES (%s, 1)",
+            (key_string,)
         )
-        result = cursor.fetchone()
 
-        if not result:
-            cursor.execute(
-                "INSERT INTO key_management (Encryption_Key, Is_Valid) VALUES (%s, 1)",
-                (key_string,)
-            )
-        else:
-            cursor.execute(
-                "INSERT INTO key_management (Encryption_Key, Is_Valid) VALUES (%s, 1)",
-                (key_string,)
-            )
-
-        # Commit
         conn.commit()
 
         return {

@@ -1,10 +1,19 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
-from .app import create_patient, search_patient, decrypt_patient_data, update_patient, delete_patient
+from .app import create_patient, search_patient, decrypt_patient_data, update_patient, delete_patient, reencryption
+from . import config
 
 # Create your views here.
 def home(request):
     return render(request, 'home.html')
+
+def maintenance_mode(request):
+    if request.method == 'POST':
+        config.MAINTENANCE_MODE = True
+        reencryption()
+        config.MAINTENANCE_MODE = False
+        return JsonResponse({'status': 'started'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
 
 def create_patient_profile(request):
     if request.method == 'POST':
@@ -30,7 +39,7 @@ def search_patient_profile(request):
         search_type = request.POST.get('search_type')
         search_value = request.POST.get('search_value')
 
-        print(f"Searching with type: {search_type} and value: {search_value}")  # Debug log
+        print(f"Searching with type: {search_type} and value: {search_value}")  # TODO need to remove debug line
 
         # Search for patients based on search type
         if search_type == 'Name':
@@ -38,7 +47,7 @@ def search_patient_profile(request):
         else:  # search_type == 'DOB'
             results = search_patient(dob=search_value)
 
-        print(f"Found {len(results) if results else 0} results")  # Debug log
+        print(f"Found {len(results) if results else 0} results")  # TODO need to remove debug line
 
         if results:
             # Decrypt the patient data

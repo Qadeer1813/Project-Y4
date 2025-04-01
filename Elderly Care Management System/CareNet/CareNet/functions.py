@@ -4,49 +4,41 @@ from cryptography.fernet import Fernet
 
 # Cache for the encryption key
 current_key = None
+previous_key = None
 
 def get_headers():
     return {
         "Authorization": f"Bearer {API_TOKEN}"
     }
 
-def get_encryption_key():
-    global current_key
+def get_encryption_key(force_refresh=False):
+    global current_key, previous_key
 
-    if current_key:
+    if force_refresh or current_key is None:
         headers = get_headers()
-        response = requests.post(
-            API_ENDPOINTS['check_key'],
-            headers=headers,
-            json={"current_key": current_key}
-        )
+        response = requests.get(API_ENDPOINTS['current_key'], headers=headers)
 
         if response.status_code == 200:
-            data = response.json()
-            if data.get("needs_refresh", False):
-                current_key = data.get("new_key")
-                print("Key has been rotated - using new key")
+            previous_key = current_key
+            current_key = response.json()['encryption_key']
+            return current_key
         else:
-            return refresh_encryption_key()
+            raise Exception(f"Failed to get encryption key: {response.status_code}")
 
-        return current_key
-
-    # Fetch new key from server
-    headers = get_headers()
-    response = requests.get(API_ENDPOINTS['current_key'], headers=headers)
-
-    if response.status_code == 200:
-        current_key = response.json()['encryption_key']
-        return current_key
-    elif response.status_code == 401:
-        raise Exception("Authentication failed - invalid token")
-    else:
-        raise Exception(f"Failed to get encryption key: {response.status_code}")
+    return current_key
 
 def refresh_encryption_key():
-    global current_key
-    current_key = None
-    return get_encryption_key()
+    global current_key, previous_key
+
+    headers = get_headers()
+    rotate_response = requests.post(API_ENDPOINTS['rotate_key'], headers=headers)
+
+    if rotate_response.status_code != 200:
+        raise Exception("Failed to rotate key")
+
+    new_key = get_encryption_key(force_refresh=True)
+
+    return new_key
 
 # Encrypt data
 def encrypt(data):
@@ -67,19 +59,23 @@ def decrypt(encrypted_data):
         return None
 
     try:
-        key = get_encryption_key().encode()
-        f = Fernet(key)
+        # First try with current key
+        current_encryption_key = get_encryption_key().encode()
+        f = Fernet(current_encryption_key)
         decrypted_data = f.decrypt(encrypted_data.encode())
         return decrypted_data.decode()
     except Exception as e:
-        try:
-            key = refresh_encryption_key().encode()
-            f = Fernet(key)
-            decrypted_data = f.decrypt(encrypted_data.encode())
-            return decrypted_data.decode()
-        except:
-            raise Exception(f"Failed to decrypt data: {str(e)}")
+        # If current key fails, try previous key
+        if previous_key:
+            try:
+                f = Fernet(previous_key.encode())
+                decrypted_data = f.decrypt(encrypted_data.encode())
+                return decrypted_data.decode()
+            except Exception as e:
+                print(f"Failed to decrypt with previous key")
 
+        # If both fail, raise the original exception
+        raise Exception(f"Failed to decrypt data: {str(e)}")
 
 # Decrypt selected fields of encrypted patient data rows and return them in readable form
 def decrypt_patient_data(patient_data):

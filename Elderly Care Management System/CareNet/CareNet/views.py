@@ -2,9 +2,44 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from .app import create_patient, search_patient, decrypt_patient_data, update_patient, delete_patient, reencryption
 from . import config
-from .functions import get_encryption_key
+from .functions import get_encryption_key, verify_password
+from .authentication_service import create_user, get_user_by_username
 
 # Create your views here.
+def login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = get_user_by_username(username)
+
+        if user and verify_password(user[0], password):
+            request.session['username'] = username
+            request.session['role'] = user[1]
+            return redirect('home')
+        else:
+            return render(request, 'login.html', {'error': 'Invalid credentials'})
+
+    return render(request, 'login.html')
+
+def logout(request):
+    request.session.flush()
+    return redirect('login')
+
+def create_user_view(request):
+    if request.session.get('role') != 'admin':
+        return redirect('home')
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        role = request.POST.get('role')
+
+        create_user(username, password, role)
+        return redirect('home')
+
+    return render(request, 'create_user.html')
+
 def home(request):
     return render(request, 'home.html', {
         'maintenance_mode': config.MAINTENANCE_MODE,

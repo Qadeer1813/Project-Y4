@@ -1,6 +1,7 @@
 import requests
 from .config import API_TOKEN, API_ENDPOINTS
 from cryptography.fernet import Fernet
+import bcrypt
 
 # Cache for the encryption key
 current_key = None
@@ -26,6 +27,15 @@ def get_encryption_key(force_refresh=False):
             raise Exception(f"Failed to get encryption key: {response.status_code}")
 
     return current_key
+
+def get_encryption_key_with_metadata():
+    headers = get_headers()
+    response = requests.get(API_ENDPOINTS['current_key'], headers=headers)
+
+    if response.status_code == 200:
+        return response.json()['encryption_key'], response.json().get('created_at')
+    else:
+        raise Exception(f"Failed to get encryption key: {response.status_code}")
 
 def refresh_encryption_key():
     global current_key, previous_key
@@ -101,11 +111,8 @@ def decrypt_patient_data(patient_data, key= None):
         decrypted_patient_data.append(decrypted_row)
     return decrypted_patient_data
 
-def get_encryption_key_with_metadata():
-    headers = get_headers()
-    response = requests.get(API_ENDPOINTS['current_key'], headers=headers)
+def hash_password(password):
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
-    if response.status_code == 200:
-        return response.json()['encryption_key'], response.json().get('created_at')
-    else:
-        raise Exception(f"Failed to get encryption key: {response.status_code}")
+def verify_password(stored_hash, input_password):
+    return bcrypt.checkpw(input_password.encode(), stored_hash.encode())

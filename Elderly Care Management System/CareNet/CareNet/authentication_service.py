@@ -1,6 +1,8 @@
 from .app import get_db_connection
 from .functions import hash_password
 
+# TODO NEED TO ADD PASSWORD RULES
+
 def get_user_by_username(username):
     conn = get_db_connection()
     cursor = conn.cursor()

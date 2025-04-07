@@ -54,7 +54,7 @@ def create_patient(name, dob, contact_number, email_address, home_address, next_
             conn.close()
 
 # Search for patient profile
-def search_patient(name=None, dob=None):
+def search_patient(name=None, dob=None, key= None):
     conn = None
     cursor = None
 
@@ -71,7 +71,7 @@ def search_patient(name=None, dob=None):
 
             if name:
                 try:
-                    decrypted_name = decrypt(record[1])
+                    decrypted_name = decrypt(record[1], key)
                     if name.lower() not in decrypted_name.lower():
                         match = False
                 except Exception:
@@ -79,7 +79,7 @@ def search_patient(name=None, dob=None):
 
             if dob and match:
                 try:
-                    decrypted_dob = decrypt(record[2])
+                    decrypted_dob = decrypt(record[2], key)
                     if dob != decrypted_dob:
                         match = False
                 except Exception:
@@ -168,13 +168,13 @@ def reencryption():
     try:
         old_key = get_encryption_key()
 
-        refreshed_key = get_encryption_key(force_refresh=True)
+        refreshed_key, refreshed_timestamp = get_encryption_key_with_metadata()
 
         if old_key == refreshed_key:
             print("No manual rotation detected. Rotating key now...")
             new_key = refresh_encryption_key()
         else:
-            print("Manual key rotation detected. Using refreshed key.")
+            print(f"Manual key rotation detected (key created at {refreshed_timestamp}).")
             new_key = refreshed_key
 
         if new_key == old_key:

@@ -13,7 +13,7 @@
         </div>
     </nav>
 
-    <div id="maintenanceNotice" class="alert alert-warning mt-3" style="display: none;">
+    <div id="maintenanceNotice" class="alert alert-warning mt-3" {% if maintenance_mode %}style="display: block;"{% else %}style="display: none;"{% endif %}>
         <strong>Maintenance Mode Active:</strong> The system is re-encrypting data. Please wait...
     </div>
 

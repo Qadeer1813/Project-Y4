@@ -54,31 +54,32 @@ def encrypt(data):
         raise Exception(f"Failed to encrypt data: {str(e)}")
 
 # Decrypt the encrypted data
-def decrypt(encrypted_data):
+def decrypt(encrypted_data, key= None):
     if not encrypted_data:
         return None
 
     try:
-        # First try with current key
-        current_encryption_key = get_encryption_key().encode()
-        f = Fernet(current_encryption_key)
-        decrypted_data = f.decrypt(encrypted_data.encode())
-        return decrypted_data.decode()
+        if not key:
+            key = get_encryption_key(force_refresh=True)
+
+        f = Fernet(key.encode())
+        return f.decrypt(encrypted_data.encode()).decode()
+
     except Exception as e:
-        # If current key fails, try previous key
         if previous_key:
             try:
                 f = Fernet(previous_key.encode())
-                decrypted_data = f.decrypt(encrypted_data.encode())
-                return decrypted_data.decode()
-            except Exception as e:
-                print(f"Failed to decrypt with previous key")
-
-        # If both fail, raise the original exception
+                return f.decrypt(encrypted_data.encode()).decode()
+            except Exception:
+                print("Failed to decrypt with previous key")
         raise Exception(f"Failed to decrypt data: {str(e)}")
 
+
 # Decrypt selected fields of encrypted patient data rows and return them in readable form
-def decrypt_patient_data(patient_data):
+def decrypt_patient_data(patient_data, key= None):
+    if not key:
+        key = get_encryption_key(force_refresh=True)
+
     decrypted_patient_data = []
     for data in patient_data:
         decrypted_row = []
@@ -91,7 +92,7 @@ def decrypt_patient_data(patient_data):
             else:
                 try:
                     if column is not None:
-                        decrypted_row.append(decrypt(column))
+                        decrypted_row.append(decrypt(column, key))
                     else:
                         decrypted_row.append('')
                 except Exception as e:
@@ -99,3 +100,12 @@ def decrypt_patient_data(patient_data):
 
         decrypted_patient_data.append(decrypted_row)
     return decrypted_patient_data
+
+def get_encryption_key_with_metadata():
+    headers = get_headers()
+    response = requests.get(API_ENDPOINTS['current_key'], headers=headers)
+
+    if response.status_code == 200:
+        return response.json()['encryption_key'], response.json().get('created_at')
+    else:
+        raise Exception(f"Failed to get encryption key: {response.status_code}")

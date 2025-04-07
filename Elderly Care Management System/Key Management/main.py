@@ -43,6 +43,7 @@ class TokenResponse(BaseModel):
 
 class CurrentKeyResponse(BaseModel):
     encryption_key: str
+    created_at: str
 
 class KeyCheckRequest(BaseModel):
     current_key: str
@@ -172,14 +173,14 @@ async def get_current_key(token: str = Depends(verify_token)):
     cursor = conn.cursor()
     try:
         cursor.execute(
-            "SELECT Encryption_Key FROM key_management WHERE Is_Valid = 1 ORDER BY Created_At DESC LIMIT 1"
+            "SELECT Encryption_Key, Created_At FROM key_management WHERE Is_Valid = 1 ORDER BY Created_At DESC LIMIT 1"
         )
         result = cursor.fetchone()
 
         if not result:
             raise HTTPException(status_code=404, detail="No valid encryption key found")
 
-        return {"encryption_key": result[0]}
+        return {"encryption_key": result[0], "created_at": result[1].isoformat()}
     finally:
         cursor.close()
         conn.close()

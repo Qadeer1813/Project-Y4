@@ -2,10 +2,13 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from .app import create_patient, search_patient, decrypt_patient_data, update_patient, delete_patient, reencryption
 from . import config
+from .functions import get_encryption_key
 
 # Create your views here.
 def home(request):
-    return render(request, 'home.html')
+    return render(request, 'home.html', {
+        'maintenance_mode': config.MAINTENANCE_MODE,
+    })
 
 def maintenance_mode(request):
     if request.method == 'POST':
@@ -40,18 +43,19 @@ def search_patient_profile(request):
         search_value = request.POST.get('search_value')
 
         print(f"Searching with type: {search_type} and value: {search_value}")  # TODO need to remove debug line
+        key = get_encryption_key(force_refresh=True)
 
         # Search for patients based on search type
         if search_type == 'Name':
-            results = search_patient(name=search_value)
+            results = search_patient(name=search_value, key= key)
         else:  # search_type == 'DOB'
-            results = search_patient(dob=search_value)
+            results = search_patient(dob=search_value, key= key)
 
         print(f"Found {len(results) if results else 0} results")  # TODO need to remove debug line
 
         if results:
             # Decrypt the patient data
-            decrypted_results = decrypt_patient_data(results)
+            decrypted_results = decrypt_patient_data(results, key)
             # Create a list to hold all patient data
             patients_data = []
 

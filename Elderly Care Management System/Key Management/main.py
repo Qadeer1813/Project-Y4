@@ -149,8 +149,7 @@ async def rotate_key():
         conn.commit()
 
         return {
-            "message": "Key rotated successfully",
-            "new_key_id": cursor.lastrowid
+            "message": "Key rotated successfully"
         }
 
     except Exception as e:

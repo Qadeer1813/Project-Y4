@@ -171,8 +171,9 @@ def reencryption():
         refreshed_key, refreshed_timestamp = get_encryption_key_with_metadata()
 
         if old_key == refreshed_key:
-            print("No manual rotation detected. Rotating key now...")
-            new_key = refresh_encryption_key()
+            print("No manual key rotation detected.")
+            return
+
         else:
             print(f"Manual key rotation detected (key created at {refreshed_timestamp}).")
             new_key = refreshed_key

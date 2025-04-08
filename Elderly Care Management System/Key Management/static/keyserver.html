@@ -87,7 +87,7 @@
                 });
                 const data = await response.json();
 
-                document.getElementById('keyMessage').textContent = `Key rotated successfully! New Key ID: ${data.new_key_id}`;
+                document.getElementById('keyMessage').textContent = `Key rotated successfully!`;
                 document.getElementById('keyResult').style.display = 'block';
             } catch (error) {
                 alert('Error rotating key: ' + error.message);

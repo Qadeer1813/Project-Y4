@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from .app import create_patient, search_patient, decrypt_patient_data, update_patient, delete_patient, reencryption
 from . import config
-from .functions import get_encryption_key, verify_password
+from .functions import get_encryption_key, verify_password, current_key
 from .authentication_service import create_user, get_user_by_username
 
 # Create your views here.
@@ -41,6 +41,13 @@ def create_user_view(request):
     return render(request, 'create_user.html')
 
 def home(request):
+    if current_key is None:
+        try:
+            get_encryption_key(force_refresh=True)
+            print("Key retrieved .")
+        except Exception as e:
+            print("Failed to retrieved key:", str(e))
+
     return render(request, 'home.html', {
         'maintenance_mode': config.MAINTENANCE_MODE,
     })
@@ -48,7 +55,11 @@ def home(request):
 def maintenance_mode(request):
     if request.method == 'POST':
         config.MAINTENANCE_MODE = True
-        reencryption()
+        try:
+            reencryption()
+        except Exception as e:
+            config.MAINTENANCE_MODE = False
+            return JsonResponse({'status': 'error', 'message': str(e)})
         config.MAINTENANCE_MODE = False
         return JsonResponse({'status': 'started'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})

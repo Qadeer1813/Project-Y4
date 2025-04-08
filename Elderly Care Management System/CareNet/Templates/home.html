@@ -61,11 +61,8 @@
                     <a href="#" class="btn btn-primary mb-2" style="width: 200px;">Care Planner</a>
                     <a href="#" class="btn btn-primary" style="width: 200px;">Medical Dashboard</a>
                     {% if request.session.role == 'admin' %}
-                    <form method="post" action="{% url 'maintenance_mode' %}" class="mt-3">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-block">Enter Maintenance Mode</button>
-                    </form>
-                {% endif %}
+                        <button id="maintenanceBtn" class="btn btn-danger btn-block mt-3" style="width: 200px;">Enter Maintenance Mode</button>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -76,31 +73,45 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const maintenanceBtn = document.getElementById('maintenanceBtn');
+        const maintenanceNotice = document.getElementById('maintenanceNotice');
 
-        document.getElementById('maintenanceBtn').addEventListener('click', async () => {
-            const confirmed = confirm("Are you sure you want to enter maintenance mode?");
-            if (!confirmed) return;
+        if (maintenanceBtn) {
+            maintenanceBtn.addEventListener('click', async () => {
+                const confirmed = confirm("Are you sure you want to enter maintenance mode?");
+                if (!confirmed) return;
 
-            document.getElementById('maintenanceNotice').style.display = 'block';
+                maintenanceNotice.style.display = 'block';
+                document.querySelectorAll('button, a').forEach(el => el.disabled = true);
 
-            const response = await fetch('/maintenance/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
+                try {
+                    const response = await fetch("{% url 'maintenance_mode' %}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({})
+                    });
+
+                    const result = await response.json();
+
+                    if (result.status === 'started') {
+                        alert("Maintenance completed.");
+                    } else {
+                        alert("Maintenance failed.");
+                    }
+
+                } catch (error) {
+                    alert("Error occurred during maintenance.");
+                }
+
+                setTimeout(() => {
+                    maintenanceNotice.style.display = 'none';
+                    document.querySelectorAll('button, a').forEach(el => el.disabled = false);
+                }, 3000);
             });
-
-            const result = await response.json();
-
-            if (result.status === 'started') {
-                alert("Entering maintenance mode. Please wait...");
-                 document.getElementById('maintenanceNotice').style.display = 'none';
-            } else {
-                alert("Failed to enter maintenance mode.");
-            }
-        });
+        }
     </script>
 </body>
 </html>

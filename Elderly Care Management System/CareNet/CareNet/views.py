@@ -154,3 +154,32 @@ def delete_patient_profile(request):
         success = delete_patient(Patient_ID)
         return JsonResponse({'status': 'success' if success else 'error'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+def medical_dashboard(request):
+    if request.method == 'POST':
+        search_type = request.POST.get('search_type')
+        search_value = request.POST.get('search_value')
+
+        key = get_encryption_key(force_refresh=True)
+
+        if search_type == 'Name':
+            results = search_patient(name=search_value, key=key)
+        else:
+            results = search_patient(dob=search_value, key=key)
+
+        if results:
+            patient = results[0]
+            decrypted = decrypt_patient_data([patient], key)[0]
+
+            has_medical_data = False
+
+            return render(request, 'medical_dashboard.html', {
+                'patient': decrypted,
+                'has_medical_data': has_medical_data
+            })
+
+        return render(request, 'medical_dashboard.html', {
+            'error': 'No matching patient found.'
+        })
+
+    return render(request, 'medical_dashboard.html')

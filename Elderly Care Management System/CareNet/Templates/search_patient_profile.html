@@ -5,6 +5,7 @@
     <title>Elderly Care Management System</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% load static %}
     <style>
         .patient-result {
             cursor: pointer;
@@ -26,7 +27,7 @@
             <a class="navbar-brand" href="{% url 'home' %}">Care Net</a>
         </div>
     </nav>
-    <div class="container">
+    <div class="container mt-4">
         <div class="card">
             <div class="card-header">
                 <h2>Search Patient Profiles</h2>
@@ -72,7 +73,9 @@
                 <button id="backToResults" class="btn btn-secondary btn-sm">Back to Results</button>
             </div>
             <div class="card-body">
-                <form id="patientForm">
+                <form id="patientForm"
+                    data-update-url="{% url 'update_patient_profile' %}"
+                    data-delete-url="{% url 'delete_patient_profile' %}">
                     <input type="hidden" id="Patient_ID" name="Patient_ID">
                     <div class="form-group">
                         <label for="Name">Name:</label>
@@ -122,166 +125,6 @@
             No patient information found.
         </div>
     </div>
-<script>
-    $(document).ready(function() {
-        // Toggle search fields based on search type
-        $('#searchType').change(function() {
-            if ($(this).val() === 'Name') {
-                $('#nameField').show();
-                $('#dobField').hide();
-            } else {
-                $('#nameField').hide();
-                $('#dobField').show();
-            }
-        });
-
-        // Handle search form submission
-        $('#searchForm').on('submit', function(e) {
-            e.preventDefault();
-
-            const searchType = $('#searchType').val();
-            let searchValue = searchType === 'Name' ? $('#searchName').val() : $('#searchDob').val();
-
-            console.log('Searching with:', searchType, searchValue); // Debug line
-
-            $.ajax({
-                url: $(this).data('url'),
-                type: 'POST',
-                data: {
-                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
-                    'search_type': searchType,
-                    'search_value': searchValue
-                },
-                success: function(response) {
-                    console.log('Search response:', response); // Debug line
-
-                    if (response.status === 'success') {
-                        $('#resultsCard').show();
-                        $('#noResultsAlert').hide();
-
-                        // Clear previous results
-                        $('#patientResultsList').empty();
-
-                        // Store results for later use
-                        window.searchResults = response;
-
-                        // Add new results
-                        response.patients.forEach(function(patient, index) {
-                            const resultHtml = `
-                                <div class="row patient-result p-2 border-bottom" data-index="${index}">
-                                    <div class="col-4">${patient.Name}</div>
-                                    <div class="col-4">${patient.DOB}</div>
-                                    <div class="col-4">${patient.Contact_Number || 'N/A'}</div>
-                                </div>
-                            `;
-                            $('#patientResultsList').append(resultHtml);
-                        });
-                    } else {
-                        $('#resultsCard').hide();
-                        $('#noResultsAlert').show();
-                    }
-                },
-                error: function() {
-                    $('#resultsCard').hide();
-                    $('#noResultsAlert').show();
-                }
-            });
-        });
-
-        // Handle clicking on a patient result
-        $(document).on('click', '.patient-result', function() {
-            const index = $(this).data('index');
-            const patient = window.searchResults.patients[index];
-
-            // Populate the detail form
-            $('#Patient_ID').val(patient.Patient_ID);
-            $('#Name').val(patient.Name);
-            $('#DOB').val(patient.DOB);
-            $('#Contact_Number').val(patient.Contact_Number);
-            $('#Email_Address').val(patient.Email_Address);
-            $('#Home_Address').val(patient.Home_Address);
-            $('#Next_Of_Kin_Name').val(patient.Next_Of_Kin_Name);
-            $('#Emergency_Contact_Number').val(patient.Emergency_Contact_Number);
-            $('#Emergency_Email_Address').val(patient.Emergency_Email_Address);
-            $('#Next_Of_Kin_Home_Address').val(patient.Next_Of_Kin_Home_Address);
-
-            // Show detail card and hide results
-            $('#resultsCard').hide();
-            $('#detailCard').show();
-
-            // Set fields to readonly initially
-            $('.patient-field').prop('readonly', true);
-            $('#saveButton').hide();
-            $('#editButton').show();
-        });
-
-        // Back to results button
-        $('#backToResults').click(function() {
-            $('#detailCard').hide();
-            $('#resultsCard').show();
-        });
-
-        // Edit button
-        $('#editButton').click(function() {
-            $('.patient-field').prop('readonly', false);
-            $('#editButton').hide();
-            $('#saveButton').show();
-        });
-
-        // Save button
-        $('#saveButton').click(function() {
-            console.log('Form data before submit:', $('#patientForm').serialize());
-            console.log('Patient ID:', $('#Patient_ID').val());
-
-            $.ajax({
-                url: '{% url "update_patient_profile" %}',
-                type: 'POST',
-                data: $('#patientForm').serialize() + '&csrfmiddlewaretoken=' + $('input[name=csrfmiddlewaretoken]').val(),
-                success: function(response) {
-                    if (response.status === 'success') {
-                        alert('Patient information updated successfully');
-                        $('.patient-field').prop('readonly', true);
-                        $('#saveButton').hide();
-                        $('#editButton').show();
-                        $('#searchForm').submit();
-                    } else {
-                        alert('Error updating patient information');
-                    }
-                },
-                error: function() {
-                    alert('An error occurred while updating patient information');
-                }
-            });
-        });
-
-        // Delete button
-        $('#deleteButton').click(function() {
-            const Patient_ID = $('#Patient_ID').val();
-            if (confirm('Are you sure you want to delete this patient record?')) {
-                $.ajax({
-                    url: '{% url "delete_patient_profile" %}',
-                    type: 'POST',
-                    data: {
-                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
-                        Patient_ID: Patient_ID
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            alert('Patient record deleted successfully');
-                            $('#detailCard').hide();
-                            $('#resultsCard').show();
-                            $('#searchForm').submit();
-                        } else {
-                            alert('Error deleting patient record');
-                        }
-                    },
-                    error: function() {
-                        alert('An error occurred while deleting patient record');
-                    }
-                });
-            }
-        });
-    });
-</script>
+    <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

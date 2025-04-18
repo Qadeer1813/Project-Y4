@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from CareNet.views import login, logout, create_user_view, home, create_patient_profile, search_patient_profile, update_patient_profile, delete_patient_profile, maintenance_mode
+from CareNet.views import (login, logout, create_user_view, home, create_patient_profile, search_patient_profile, update_patient_profile, delete_patient_profile,
+                           medical_dashboard, maintenance_mode)
 from django.views.generic import RedirectView
 
 urlpatterns = [
@@ -29,4 +30,5 @@ urlpatterns = [
     path('search_patient/', search_patient_profile, name='search_patient_profile'),
     path('update_patient/', update_patient_profile, name='update_patient_profile'),
     path('delete_patient/', delete_patient_profile, name='delete_patient_profile'),
+    path('medical-dashboard/', medical_dashboard, name='medical_dashboard'),
 ]

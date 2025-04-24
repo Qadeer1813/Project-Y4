@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Medical Info</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">Care Net</a>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h2>Add Medical Details for {{ patient.Name }}</h2>
+    <p><strong>DOB:</strong> {{ patient.DOB }}</p>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div id="medicationFieldsWrapper">
+            <div class="form-group medication-group">
+                <div class="form-row">
+                    <div class="col-md-5">
+                        <label for="Medication_Name_1">Medication Name 1</label>
+                        <input type="text" class="form-control" name="Medication_Name[]" id="Medication_Name_1" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="Medication_Dosage_1">Dosage 1</label>
+                        <input type="text" class="form-control" name="Medication_Dosage[]" id="Medication_Dosage_1" required>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger btn-sm removeMedicationBtn" style="display: none;">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addMedicationBtn">Add More Medication</button>
+
+        <div class="form-group">
+            <label for="Medical_History_Text">Medical History Summary</label>
+            <textarea class="form-control" name="Medical_History_Text" id="Medical_History_Text" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="Medical_File">Attach Medical Document</label>
+            <input type="file" class="form-control-file" name="Medical_File" id="Medical_File" multiple>
+            <div id="selectedFilesList" class="mt-2"></div>
+        </div>
+        <div class="form-group">
+            <label for="Allergies">Allergies</label>
+            <input type="text" class="form-control" name="Allergies" id="Allergies">
+        </div>
+        <button type="submit" class="btn btn-success">Save</button>
+        <a href="{% url 'medical_dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

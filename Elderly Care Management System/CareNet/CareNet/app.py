@@ -1,4 +1,7 @@
+import base64
+import json
 import mysql.connector
+import requests
 from .functions import *
 from .config import *
 
@@ -156,6 +159,166 @@ def delete_patient(patient_id):
     except mysql.connector.Error as e:
         print("Error deleting patient:", e)
         return False
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def patient_medical_info(patient_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        query = "SELECT COUNT(*) FROM medical_dashboard WHERE Patient_ID = %s"
+        cursor.execute(query, (patient_id,))
+        count = cursor.fetchone()[0]
+        return count > 0
+
+    except mysql.connector.Error as e:
+        print(f"Error checking medical data: {e}")
+        return False
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def add_patient_medical_info(patient_id, names, dosages, history, medical_files, medical_filenames, allergies):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        medications = [{"name": name, "dosage": dosage} for name, dosage in zip(names, dosages)]
+        medication_json = json.dumps(medications)
+
+        encrypted_medications = encrypt(medication_json)
+        encrypted_history = encrypt(history)
+        encrypted_allergies = encrypt(allergies)
+
+        dashboard_query = '''
+            INSERT INTO medical_dashboard 
+            (Patient_ID, Medications, Medical_History, Allergies)
+            VALUES (%s, %s, %s, %s)
+        '''
+        cursor.execute(dashboard_query, (
+            patient_id,
+            encrypted_medications,
+            encrypted_history,
+            encrypted_allergies
+        ))
+        conn.commit()
+
+        dashboard_id = cursor.lastrowid
+
+        if medical_files:
+            for file_data, filename in zip(medical_files, medical_filenames):
+                file_insert = '''
+                    INSERT INTO medical_files (Patient_Medical_Dashboard_ID, File_Name, File_Data)
+                    VALUES (%s, %s, %s)
+                '''
+                cursor.execute(file_insert, (dashboard_id, filename, file_data))
+
+        conn.commit()
+        return True
+
+    except mysql.connector.Error as e:
+        print("Error occurred:", e)
+        return False
+
+    finally:
+        if cursor: cursor.close()
+        if conn: conn.close()
+
+def patient_medical_dashboard_info(patient_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            SELECT Patient_Medical_Dashboard_ID, Medications, Medical_History, Allergies 
+            FROM medical_dashboard 
+            WHERE Patient_ID = %s
+        """, (patient_id,))
+        result = cursor.fetchone()
+        if not result:
+            return None
+
+        dashboard_id, medical_data, history_data, allergy_data = result
+        key = get_encryption_key()
+
+        medications = json.loads(decrypt(medical_data, key))
+        history = decrypt(history_data, key)
+        allergies = decrypt(allergy_data, key)
+
+        cursor.execute("""
+            SELECT Medical_Files_ID, File_Name, File_Data FROM medical_files 
+            WHERE Patient_Medical_Dashboard_ID = %s
+        """, (dashboard_id,))
+        files = [{"id": row[0], "filename": row[1], "data": row[2]} for row in cursor.fetchall()]
+
+        return {
+            "medications": medications,
+            "history": history,
+            "files": files,
+            "allergies": allergies
+        }
+
+    except mysql.connector.Error as e:
+        print("Error fetching dashboard:", e)
+        return None
+    finally:
+        if cursor: cursor.close()
+        if conn: conn.close()
+
+def update_patient_medical_info(patient_id, names, dosages, history, new_files, new_file_names, allergies, delete_flags):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT Patient_Medical_Dashboard_ID FROM medical_dashboard WHERE Patient_ID = %s", (patient_id,))
+        result = cursor.fetchone()
+        if not result:
+            print("No dashboard found for patient.")
+            return False
+
+        dashboard_id = result[0]
+
+        medications = [{"name": n, "dosage": d} for n, d in zip(names, dosages)]
+        encrypted_medications = encrypt(json.dumps(medications))
+        encrypted_history = encrypt(history)
+        encrypted_allergies = encrypt(allergies)
+
+        cursor.execute("""
+            UPDATE medical_dashboard
+            SET Medications = %s, Medical_History = %s, Allergies = %s
+            WHERE Patient_ID = %s
+        """, (encrypted_medications, encrypted_history, encrypted_allergies, patient_id))
+
+        cursor.execute("""
+            SELECT Medical_Files_ID FROM medical_files
+            WHERE Patient_Medical_Dashboard_ID = %s
+        """, (dashboard_id,))
+        file_ids = cursor.fetchall()
+
+        for (file_id,) in file_ids:
+            flag_key = f"delete_file_{file_id}"
+            if flag_key in delete_flags and delete_flags[flag_key] == "1":
+                cursor.execute("DELETE FROM medical_files WHERE Medical_Files_ID = %s", (file_id,))
+
+        for file_data, file_name in zip(new_files, new_file_names):
+            cursor.execute("""
+                INSERT INTO medical_files (Patient_Medical_Dashboard_ID, File_Name, File_Data)
+                VALUES (%s, %s, %s)
+            """, (dashboard_id, file_name, file_data))
+
+        conn.commit()
+        return True
+
+    except mysql.connector.Error as e:
+        print("Error updating medical details:", e)
+        return False
+
     finally:
         if cursor:
             cursor.close()

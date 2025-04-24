@@ -84,7 +84,6 @@ def decrypt(encrypted_data, key= None):
                 print("Failed to decrypt with previous key")
         raise Exception(f"Failed to decrypt data: {str(e)}")
 
-
 # Decrypt selected fields of encrypted patient data rows and return them in readable form
 def decrypt_patient_data(patient_data, key= None):
     if not key:

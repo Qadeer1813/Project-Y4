@@ -1,6 +1,8 @@
+import io
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse
-from .app import create_patient, search_patient, decrypt_patient_data, update_patient, delete_patient, reencryption
+from django.http import HttpResponse, JsonResponse, FileResponse
+from .app import create_patient, search_patient, decrypt_patient_data, update_patient, delete_patient, reencryption, \
+    patient_medical_info, add_patient_medical_info, patient_medical_dashboard_info, update_patient_medical_info
 from . import config
 from .functions import get_encryption_key, verify_password, current_key
 from .authentication_service import create_user, get_user_by_username
@@ -168,18 +170,118 @@ def medical_dashboard(request):
             results = search_patient(dob=search_value, key=key)
 
         if results:
-            patient = results[0]
-            decrypted = decrypt_patient_data([patient], key)[0]
+            decrypted = decrypt_patient_data(results, key)
 
-            has_medical_data = False
+            patients_info = []
+            for patient in decrypted:
+                patient_id = patient[0]
+                patients_info.append({
+                    'Patient_ID': patient_id,
+                    'Name': patient[1],
+                    'DOB': patient[2],
+                    'has_medical_data': patient_medical_info(patient_id)
+                })
 
-            return render(request, 'medical_dashboard.html', {
-                'patient': decrypted,
-                'has_medical_data': has_medical_data
+            return JsonResponse({
+                'status': 'success',
+                'patients': patients_info
             })
 
-        return render(request, 'medical_dashboard.html', {
-            'error': 'No matching patient found.'
-        })
+        return JsonResponse({'status': 'not_found'})
 
     return render(request, 'medical_dashboard.html')
+
+def patient_medical_dashboard_details(request, patient_id):
+    key = get_encryption_key(force_refresh=True)
+    patient_data = search_patient(key=key)
+
+    selected = [p for p in patient_data if p[0] == patient_id]
+    if not selected:
+        return HttpResponse("Patient not found", status=404)
+
+    decrypted_patient = decrypt_patient_data([selected[0]], key)[0]
+
+    if request.method == "POST":
+        names = request.POST.getlist('Medication_Name[]')
+        dosages = request.POST.getlist('Medication_Dosage[]')
+        history = request.POST.get('Medical_History_Text')
+        allergies = request.POST.get('Allergies')
+
+        uploaded_files = request.FILES.getlist("Medical_File")
+        medical_files = [f.read() for f in uploaded_files]
+        file_names = [f.name for f in uploaded_files]
+
+        update_patient_medical_info(
+            patient_id=patient_id,
+            names=names,
+            dosages=dosages,
+            history=history,
+            new_files=medical_files,
+            new_file_names=file_names,
+            allergies=allergies,
+            delete_flags=request.POST
+        )
+
+        return redirect("patient_medical_dashboard_details", patient_id=patient_id)
+
+    medical_info = patient_medical_dashboard_info(patient_id)
+
+    return render(request, "patient_medical_dashboard_details.html", {
+        "patient": {
+            "Patient_ID": decrypted_patient[0],
+            "Name": decrypted_patient[1],
+            "DOB": decrypted_patient[2]
+        },
+        "medical_info": medical_info
+    })
+
+def download_medical_file(request, patient_id, file_index):
+    medical_info = patient_medical_dashboard_info(patient_id)
+    if not medical_info or file_index >= len(medical_info["files"]):
+        return HttpResponse("File not found", status=404)
+
+    file = medical_info["files"][file_index]
+    file_stream = io.BytesIO(file["data"])
+    return FileResponse(file_stream, as_attachment=True, filename=file["filename"])
+
+def add_patient_medical_details(request, patient_id):
+    key = get_encryption_key(force_refresh=True)
+    patient_data = search_patient(key=key)
+
+    selected = [p for p in patient_data if p[0] == patient_id]
+    if not selected:
+        return HttpResponse("Patient not found", status=404)
+
+    decrypted = decrypt_patient_data([selected[0]], key)[0]
+
+    if request.method == 'POST':
+        names = request.POST.getlist('Medication_Name[]')
+        dosages = request.POST.getlist('Medication_Dosage[]')
+        allergies = request.POST.get('Allergies')
+        medical_history_text = request.POST.get('Medical_History_Text')
+        uploaded_files = request.FILES.getlist('Medical_File')
+        medical_files = [file.read() for file in uploaded_files if file]
+        medical_filenames = [file.name for file in uploaded_files if file]
+
+        success = add_patient_medical_info(
+            patient_id,
+            names,
+            dosages,
+            medical_history_text,
+            medical_files,
+            medical_filenames,
+            allergies
+        )
+
+        if not success:
+            return HttpResponse("Something went wrong while saving", status=500)
+
+        return redirect('medical_dashboard')
+
+    return render(request, 'add_patient_medical_details.html', {
+        'patient': {
+            'Patient_ID': decrypted[0],
+            'Name': decrypted[1],
+            'DOB': decrypted[2]
+        }
+    })

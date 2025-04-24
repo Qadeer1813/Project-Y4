@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medical Dashboard - Details</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">Care Net</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h3>Medical Details - {{ patient.Name }}</h3>
+    <p><strong>Date of Birth:</strong> {{ patient.DOB }}</p>
+
+    <form method="POST" enctype="multipart/form-data" id="medicalDetailForm">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Medications</label>
+            <div id="medicationFieldsWrapper">
+                {% for med in medical_info.medications %}
+                    <div class="form-row mb-2 medication-group">
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" name="Medication_Name[]" value="{{ med.name }}" readonly required>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" name="Medication_Dosage[]" value="{{ med.dosage }}" readonly required>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addMedicationBtn" style="display: none;">Add Medication</button>
+        </div>
+
+        <div class="form-group">
+            <label>Medical History</label>
+            <textarea class="form-control" name="Medical_History_Text" rows="4" readonly>{{ medical_info.history }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Allergies</label>
+            <input type="text" class="form-control" name="Allergies" value="{{ medical_info.allergies }}" readonly>
+        </div>
+
+        {% if medical_info.files %}
+        <div class="form-group">
+            <label>Existing Files</label>
+            <ul class="list-group" id="fileListGroup">
+                {% for file in medical_info.files %}
+                <li class="list-group-item d-flex justify-content-between align-items-center file-entry">
+                    <span>{{ file.filename }}</span>
+                    <div>
+                        <a href="{% url 'download_medical_file' patient.Patient_ID forloop.counter0 %}" class="btn btn-sm btn-outline-secondary">Download</a>
+                        <button type="button" class="btn btn-sm btn-outline-danger ml-2 deleteFileBtn" data-id="{{ file.id }}" style="display: none;">Remove</button>
+                        <input type="hidden" name="delete_file_{{ file.id }}" value="0" class="delete-flag">
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div id="fileUploadSection" class="form-group d-none">
+            <label for="Medical_File">Upload New Files</label>
+            <input type="file" name="Medical_File" id="Medical_File" class="form-control-file" multiple>
+            <div id="selectedFilesList" class="mt-3"></div>
+        </div>
+
+        <button type="submit" class="btn btn-success" style="display: none;" id="saveBtn">Save Changes</button>
+        <button type="button" class="btn btn-secondary" style="display: none;" id="cancelBtn">Cancel</button>
+        <button type="button" class="btn btn-warning" id="editBtn">Edit</button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

@@ -17,8 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from CareNet.views import (login, logout, create_user_view, home, create_patient_profile, search_patient_profile, update_patient_profile, delete_patient_profile,
-                           medical_dashboard, maintenance_mode)
+                           medical_dashboard, patient_medical_dashboard_details, download_medical_file, add_patient_medical_details, maintenance_mode)
 from django.views.generic import RedirectView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('login/', login, name='login'),
@@ -31,4 +33,10 @@ urlpatterns = [
     path('update_patient/', update_patient_profile, name='update_patient_profile'),
     path('delete_patient/', delete_patient_profile, name='delete_patient_profile'),
     path('medical-dashboard/', medical_dashboard, name='medical_dashboard'),
+    path('medical-dashboard/details/<int:patient_id>/', patient_medical_dashboard_details, name='patient_medical_dashboard_details'),
+    path('medical-dashboard/download/<int:patient_id>/<int:file_index>/', download_medical_file, name='download_medical_file'),
+    path('medical-dashboard/add/<int:patient_id>/', add_patient_medical_details, name='add_patient_medical_details'),
+
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,6 +1,7 @@
 import io
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, FileResponse
+from django.views.decorators.cache import never_cache
 from .app import create_patient, search_patient, decrypt_patient_data, update_patient, delete_patient, reencryption, \
     patient_medical_info, add_patient_medical_info, patient_medical_dashboard_info, update_patient_medical_info
 from . import config
@@ -8,6 +9,7 @@ from .functions import get_encryption_key, verify_password, current_key
 from .authentication_service import create_user, get_user_by_username
 
 # Create your views here.
+@never_cache
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -24,10 +26,12 @@ def login(request):
 
     return render(request, 'login.html')
 
+@never_cache
 def logout(request):
     request.session.flush()
     return redirect('login')
 
+@never_cache
 def create_user_view(request):
     if request.session.get('role') != 'admin':
         return redirect('home')
@@ -42,6 +46,7 @@ def create_user_view(request):
 
     return render(request, 'create_user.html')
 
+@never_cache
 def home(request):
     if current_key is None:
         try:
@@ -54,6 +59,7 @@ def home(request):
         'maintenance_mode': config.MAINTENANCE_MODE,
     })
 
+@never_cache
 def maintenance_mode(request):
     if request.method == 'POST':
         config.MAINTENANCE_MODE = True
@@ -66,6 +72,7 @@ def maintenance_mode(request):
         return JsonResponse({'status': 'started'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
 
+@never_cache
 def create_patient_profile(request):
     if request.method == 'POST':
         name = request.POST.get('Name')
@@ -85,6 +92,7 @@ def create_patient_profile(request):
     else:
         return render(request, 'create_patient_profile.html')
 
+@never_cache
 def search_patient_profile(request):
     if request.method == 'POST':
         search_type = request.POST.get('search_type')
@@ -129,6 +137,7 @@ def search_patient_profile(request):
 
     return render(request, 'search_patient_profile.html')
 
+@never_cache
 def update_patient_profile(request):
     if request.method == 'POST':
         Patient_ID = request.POST.get('Patient_ID')
@@ -150,6 +159,7 @@ def update_patient_profile(request):
         return JsonResponse({'status': 'success' if success else 'error'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
+@never_cache
 def delete_patient_profile(request):
     if request.method == 'POST':
         Patient_ID = request.POST.get('Patient_ID')
@@ -157,6 +167,7 @@ def delete_patient_profile(request):
         return JsonResponse({'status': 'success' if success else 'error'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
+@never_cache
 def medical_dashboard(request):
     if request.method == 'POST':
         search_type = request.POST.get('search_type')
@@ -192,8 +203,9 @@ def medical_dashboard(request):
 
     return render(request, 'medical_dashboard.html')
 
+@never_cache
 def patient_medical_dashboard_details(request, patient_id):
-    key = get_encryption_key(force_refresh=True)
+    key = get_encryption_key()
     patient_data = search_patient(key=key)
 
     selected = [p for p in patient_data if p[0] == patient_id]
@@ -246,6 +258,7 @@ def patient_medical_dashboard_details(request, patient_id):
         "has_data": has_data
     })
 
+@never_cache
 def download_medical_file(request, patient_id, file_index):
     medical_info = patient_medical_dashboard_info(patient_id)
     if not medical_info or file_index >= len(medical_info["files"]):
@@ -255,8 +268,9 @@ def download_medical_file(request, patient_id, file_index):
     file_stream = io.BytesIO(file["data"])
     return FileResponse(file_stream, as_attachment=True, filename=file["filename"])
 
+@never_cache
 def add_patient_medical_details(request, patient_id):
-    key = get_encryption_key(force_refresh=True)
+    key = get_encryption_key()
     patient_data = search_patient(key=key)
 
     selected = [p for p in patient_data if p[0] == patient_id]

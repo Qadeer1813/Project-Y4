@@ -1,5 +1,5 @@
 import requests
-from .config import API_TOKEN, API_ENDPOINTS
+from .config import *
 from cryptography.fernet import Fernet
 import bcrypt
 

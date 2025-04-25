@@ -17,9 +17,16 @@
     <h3>Medical Details - {{ patient.Name }}</h3>
     <p><strong>Date of Birth:</strong> {{ patient.DOB }}</p>
 
+    {% if not has_data %}
+    <div class="alert alert-info d-flex justify-content-between align-items-center" id="noMedicalDataNotice">
+        <span>No medical data found for this patient. Would you like to add medical details?</span>
+         <a href="{% url 'add_patient_medical_details' patient.Patient_ID %}" class="btn btn-sm btn-outline-primary ml-3">Add Details</a>
+    </div>
+    {% endif %}
+
     <form method="POST" enctype="multipart/form-data" id="medicalDetailForm">
         {% csrf_token %}
-
+        {% if has_data %}
         <div class="form-group">
             <label>Medications</label>
             <div id="medicationFieldsWrapper">
@@ -30,6 +37,10 @@
                         </div>
                         <div class="col-md-5">
                             <input type="text" class="form-control" name="Medication_Dosage[]" value="{{ med.dosage }}" readonly required>
+                        </div>
+                        <div class="col-md-2 d-none edit-only">
+                            <button type="button" class="btn btn-sm btn-outline-danger removeMedicationBtn">Remove</button>
+                            <input type="hidden" class="med-delete-flag" name="delete_medication[]" value="0">
                         </div>
                     </div>
                 {% endfor %}
@@ -74,6 +85,7 @@
         <button type="submit" class="btn btn-success" style="display: none;" id="saveBtn">Save Changes</button>
         <button type="button" class="btn btn-secondary" style="display: none;" id="cancelBtn">Cancel</button>
         <button type="button" class="btn btn-warning" id="editBtn">Edit</button>
+        {% endif %}
     </form>
 </div>
 

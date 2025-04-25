@@ -284,7 +284,12 @@ def update_patient_medical_info(patient_id, names, dosages, history, new_files, 
 
         dashboard_id = result[0]
 
-        medications = [{"name": n, "dosage": d} for n, d in zip(names, dosages)]
+        delete_meds = delete_flags.getlist("delete_medication[]")
+        medications = [
+            {"name": n, "dosage": d}
+            for n, d, flag in zip(names, dosages, delete_meds)
+            if flag != "1"
+        ]
         encrypted_medications = encrypt(json.dumps(medications))
         encrypted_history = encrypt(history)
         encrypted_allergies = encrypt(allergies)
@@ -385,6 +390,23 @@ def reencryption():
             '''
             cursor.execute(update_query, (*decrypted_fields, patient_id))
 
+        cursor.execute("SELECT Patient_ID, Medications, Medical_History, Allergies FROM medical_dashboard")
+        dashboards = cursor.fetchall()
+
+        for patient_id, medication, history, allergies in dashboards:
+            try:
+                medication = fernet_new.encrypt(fernet_old.decrypt(medication.encode())).decode()
+                history = fernet_new.encrypt(fernet_old.decrypt(history.encode())).decode()
+                allergies = fernet_new.encrypt(fernet_old.decrypt(allergies.encode())).decode()
+
+                cursor.execute("""
+                            UPDATE medical_dashboard
+                            SET Medications=%s, Medical_History=%s, Allergies=%s
+                            WHERE Patient_ID=%s
+                        """, (medication, history, allergies, patient_id))
+            except Exception as e:
+                print(f"Error processing medical_dashboard for Patient_ID={patient_id}: {e}")
+                failed_records.append(patient_id)
         conn.commit()
         cursor.close()
         conn.close()

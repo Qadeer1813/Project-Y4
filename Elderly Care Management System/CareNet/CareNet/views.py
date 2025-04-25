@@ -179,6 +179,7 @@ def medical_dashboard(request):
                     'Patient_ID': patient_id,
                     'Name': patient[1],
                     'DOB': patient[2],
+                    'Contact_Number': patient[3],
                     'has_medical_data': patient_medical_info(patient_id)
                 })
 
@@ -226,13 +227,23 @@ def patient_medical_dashboard_details(request, patient_id):
 
     medical_info = patient_medical_dashboard_info(patient_id)
 
+    has_data = (
+        medical_info and (
+            medical_info.get('medications') or
+            medical_info.get('history') or
+            medical_info.get('allergies') or
+            medical_info.get('files')
+        )
+    )
+
     return render(request, "patient_medical_dashboard_details.html", {
         "patient": {
             "Patient_ID": decrypted_patient[0],
             "Name": decrypted_patient[1],
             "DOB": decrypted_patient[2]
         },
-        "medical_info": medical_info
+        "medical_info": medical_info,
+        "has_data": has_data
     })
 
 def download_medical_file(request, patient_id, file_index):

@@ -1,6 +1,6 @@
 from django.shortcuts import redirect
 
-EXEMPT_PATHS = ['/login/', '/logout/', '/create-user/', '/static/']
+EXEMPT_PATHS = ['/login/', '/logout/', '/create_user/', '/static/']
 
 class LoginRequiredMiddleware:
     def __init__(self, get_response):

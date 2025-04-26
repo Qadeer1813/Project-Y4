@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Roster Entry - CareNet</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">Care Net</a>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Add Roster Entry</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Day</label>
+            <select name="Day" class="form-control" required>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Shift Time</label>
+            <input type="text" name="Shift_Time" class="form-control" placeholder="e.g., 8am - 4pm" required>
+        </div>
+
+        <div class="form-group">
+            <label>Carer</label>
+            <select name="Carer" class="form-control" required>
+                {% for carer in carers %}
+                    <option value="{{ carer }}">{{ carer }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Patient</label>
+            <select name="Patient" class="form-control" required>
+                {% for patient in patients %}
+                    <option value="{{ patient }}">{{ patient }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Add Entry</button>
+    </form>
+</div>
+
+</body>
+</html>

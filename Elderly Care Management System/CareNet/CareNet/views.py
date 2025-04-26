@@ -1,9 +1,11 @@
 import io
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, FileResponse
 from django.views.decorators.cache import never_cache
 from .app import create_patient, search_patient, decrypt_patient_data, update_patient, delete_patient, reencryption, \
-    patient_medical_info, add_patient_medical_info, patient_medical_dashboard_info, update_patient_medical_info
+    patient_medical_info, add_patient_medical_info, patient_medical_dashboard_info, update_patient_medical_info, \
+    add_roster, roster_entries, delete_roster, get_carers, get_patient
 from . import config
 from .functions import get_encryption_key, verify_password, current_key
 from .authentication_service import *
@@ -55,8 +57,8 @@ def create_user_view(request):
 def home(request):
     if current_key is None:
         try:
-            get_encryption_key(force_refresh=True)
-            print("Key retrieved .")
+            get_encryption_key(force_refresh=False)
+            print("Key retrieved.")
         except Exception as e:
             print("Failed to retrieved key:", str(e))
 
@@ -315,3 +317,34 @@ def add_patient_medical_details(request, patient_id):
             'DOB': decrypted[2]
         }
     })
+
+def roster_view(request):
+    rosters = roster_entries()
+    return render(request, "roster.html", {"rosters": rosters})
+
+def add_roster_view(request):
+    if request.method == 'POST':
+        day = request.POST.get('Day')
+        shift_time = request.POST.get('Shift_Time')
+        carer = request.POST.get('Carer')
+        patient = request.POST.get('Patient')
+
+        if add_roster(day, shift_time, carer, patient):
+            messages.success(request, "Roster entry added successfully")
+        else:
+            messages.error(request, "Roster entry could not be added")
+
+        return redirect('roster')
+
+    carers = get_carers()
+    patients = get_patient()
+    return render(request, 'add_roster.html', {'carers': carers, 'patients': patients})
+
+
+def delete_roster_view(request, roster_id):
+    if request.method == 'POST':
+        if delete_roster(roster_id):
+            messages.success(request, "Roster entry deleted successfully")
+        else:
+            messages.error(request, "Roster entry could not be deleted")
+        return redirect('roster')

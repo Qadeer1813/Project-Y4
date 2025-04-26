@@ -1,7 +1,6 @@
-import base64
 import json
 import mysql.connector
-import requests
+
 from .functions import *
 from .config import *
 
@@ -330,11 +329,125 @@ def update_patient_medical_info(patient_id, names, dosages, history, new_files, 
         if conn:
             conn.close()
 
+def add_roster(day, shift_time, carer, patient):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        query = ''' INSERT INTO roster (Day, Shift_Time, Carer, Patient)
+            VALUES (%s, %s, %s, %s)
+        '''
+        encrypted_day = encrypt(day)
+        encrypted_shift_time = encrypt(shift_time)
+        encrypted_carer = encrypt(carer)
+        encrypted_patient = encrypt(patient)
+
+        cursor.execute(query, (encrypted_day, encrypted_shift_time, encrypted_carer, encrypted_patient))
+        conn.commit()
+        return True
+    except mysql.connector.Error as e:
+        print("Error adding roster:", e)
+        return False
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def roster_entries():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        query = 'SELECT * FROM roster'
+        cursor.execute(query)
+        entries = cursor.fetchall()
+
+        rosters = []
+        key = get_encryption_key()
+        for entry in entries:
+            roster = {
+                "Roster_ID": entry[0],
+                "Day": decrypt(entry[1],key),
+                "Shift_Time": decrypt(entry[2],key),
+                "Carer": decrypt(entry[3],key),
+                "Patient": decrypt(entry[4],key),
+            }
+            rosters.append(roster)
+
+        return rosters
+
+    except mysql.connector.Error as e:
+        print("Error adding roster entries:", e)
+        return None
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def delete_roster(roster_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        query = '''DELETE FROM roster WHERE Roster_ID = %s'''
+        cursor.execute(query, (roster_id,))
+        conn.commit()
+        return True
+    except mysql.connector.Error as e:
+        print("Error deleting roster entries:", e)
+        return False
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def get_patient():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        query = '''SELECT Name FROM patient_profile'''
+        cursor.execute(query)
+        patients  = []
+        for (encrypted_name,) in cursor.fetchall():
+            decrypted_name = decrypt(encrypted_name, key=current_key)
+            patients.append(decrypted_name)
+        return patients
+    except mysql.connector.Error as e:
+        print("Error getting patient:", e)
+        return []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def get_carers():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try :
+        query = '''SELECT Username FROM users WHERE role = "carer"'''
+        cursor.execute(query)
+        carers = [row[0] for row in cursor.fetchall()]
+        return carers
+    except mysql.connector.Error as e:
+        print("Error getting carers:", e)
+        return []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
 def reencryption():
     print("Starting re-encryption process...")
 
     try:
-        old_key = get_encryption_key()
+        old_key = get_encryption_key(force_refresh=False)
 
         refreshed_key, refreshed_timestamp = get_encryption_key_with_metadata()
 
@@ -407,6 +520,25 @@ def reencryption():
             except Exception as e:
                 print(f"Error processing medical_dashboard for Patient_ID={patient_id}: {e}")
                 failed_records.append(patient_id)
+
+        cursor.execute("SELECT Roster_ID, Day, Shift_Time, Carer, Patient FROM roster")
+        rosters = cursor.fetchall()
+
+        for roster_id, day, shift_time, carer, patient in rosters:
+            try:
+                day = fernet_new.encrypt(fernet_old.decrypt(day.encode())).decode()
+                shift_time = fernet_new.encrypt(fernet_old.decrypt(shift_time.encode())).decode()
+                carer = fernet_new.encrypt(fernet_old.decrypt(carer.encode())).decode()
+                patient = fernet_new.encrypt(fernet_old.decrypt(patient.encode())).decode()
+
+                cursor.execute(
+                    "UPDATE roster SET Day=%s, Shift_Time=%s, Carer=%s, Patient=%s WHERE Roster_ID=%s",
+                    (day, shift_time, carer, patient, roster_id)
+                )
+            except Exception as e:
+                print(f"Error processing roster for Roster_ID={roster_id}: {e}")
+                failed_records.append(roster_id)
+
         conn.commit()
         cursor.close()
         conn.close()

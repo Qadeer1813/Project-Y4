@@ -6,7 +6,7 @@ from .app import create_patient, search_patient, decrypt_patient_data, update_pa
     patient_medical_info, add_patient_medical_info, patient_medical_dashboard_info, update_patient_medical_info
 from . import config
 from .functions import get_encryption_key, verify_password, current_key
-from .authentication_service import create_user, get_user_by_username
+from .authentication_service import *
 
 # Create your views here.
 @never_cache
@@ -40,6 +40,11 @@ def create_user_view(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         role = request.POST.get('role')
+
+        is_valid, error_message = password_complexity_check(password)
+
+        if not is_valid:
+            return render(request, 'create_user.html', {'error': error_message})
 
         create_user(username, password, role)
         return redirect('home')

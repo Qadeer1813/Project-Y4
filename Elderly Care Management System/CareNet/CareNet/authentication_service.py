@@ -1,7 +1,6 @@
+import string
 from .app import get_db_connection
 from .functions import hash_password
-
-# TODO NEED TO ADD PASSWORD RULES
 
 def get_user_by_username(username):
     conn = get_db_connection()
@@ -25,3 +24,17 @@ def create_user(username, raw_password, role):
     cursor.close()
     conn.close()
     return True
+
+# Password complexity check
+def password_complexity_check(password):
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long."
+    if not any(char.isdigit() for char in password):
+        return False, "Password must contain at least number."
+    if not any(char.islower() for char in password):
+        return False, "Password must contain lowercase letter."
+    if not any(char.isupper() for char in password):
+        return False, "Password must contain uppercase letter."
+    if not any(char in string.punctuation for char in password):
+        return False, "Password must contain special character."
+    return True, ""

@@ -22,6 +22,29 @@ API_ENDPOINTS = {
 # Global flag for maintenance mode
 MAINTENANCE_MODE = False
 ```
+
+
+To make a user when you first launch the app you must create a supervuser
+```
+import bcrypt
+from CareNet.app import get_db_connection
+
+username = ""
+password = ""
+hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+conn = get_db_connection()
+cursor = conn.cursor()
+cursor.execute(
+    "INSERT INTO users (Username, Password, role) VALUES (%s, %s, %s)",
+    (username, hashed, 'admin')
+)
+conn.commit()
+cursor.close()
+conn.close()
+
+print("SUPERUSER CREATED")
+```
 In the Carenet Database this is the following SQL Query
 ```
 CREATE TABLE IF NOT EXISTS `patient_profile` (
@@ -36,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `patient_profile` (
   `Next_Of_Kin_Home_Address` text NOT NULL,
   `Emergency_Email_Address` text NOT NULL,
   PRIMARY KEY (`Patient_ID`)
-)
+);
 
 CREATE TABLE IF NOT EXISTS medical_dashboard (
     Patient_Medical_Dashboard_ID INT NOT NULL AUTO_INCREMENT,
@@ -57,6 +80,14 @@ CREATE TABLE IF NOT EXISTS medical_files (
         ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS `users` (
+  `User_Id` int(11) NOT NULL AUTO_INCREMENT,
+  `Username` varchar(100) NOT NULL,
+  `Password` text NOT NULL,
+  `role` enum('admin','carer') NOT NULL,
+  PRIMARY KEY (`User_Id`),
+  UNIQUE KEY `Username` (`Username`)
+);
 ```
 
 In the Key Server database run the following SQL Query

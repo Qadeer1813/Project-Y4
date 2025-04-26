@@ -24,7 +24,7 @@ MAINTENANCE_MODE = False
 ```
 
 
-To make a user when you first launch the app you must create a supervuser
+To make a user when you first launch the app you must create a supervuser run this in shell
 ```
 import bcrypt
 from CareNet.app import get_db_connection

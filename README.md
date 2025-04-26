@@ -13,7 +13,7 @@ DB_CONFIG = {
 }
 
 API_TOKEN = ""
-API_BASE_URL = "http://localhost:8001/"
+API_BASE_URL = ""
 API_ENDPOINTS = {
     'current_key': f"{API_BASE_URL}/current-key",
     'check_key': f"{API_BASE_URL}/check-key",

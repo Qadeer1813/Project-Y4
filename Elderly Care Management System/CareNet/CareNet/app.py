@@ -39,10 +39,10 @@ def create_patient(name, dob, contact_number, email_address, home_address, next_
         encrypted_emergency_email_address = encrypt(emergency_email_address)
 
         # SQL query to insert a new record into the patient_profile table
-        create_patient_profile = '''
-        INSERT INTO patient_profile (Name, DOB, Contact_Number, Email_Address, Home_Address, Next_Of_Kin_Name, Emergency_Contact_Number, Next_Of_Kin_Home_Address, Emergency_Email_Address)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        '''
+        create_patient_profile = """
+            INSERT INTO patient_profile (Name, DOB, Contact_Number, Email_Address, Home_Address, Next_Of_Kin_Name, Emergency_Contact_Number, Next_Of_Kin_Home_Address, Emergency_Email_Address)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
         cursor.execute(create_patient_profile, (encrypted_name, encrypted_dob , encrypted_contact_number, encrypted_email_address, encrypted_home_address, encrypted_next_of_kin_name, encrypted_emergency_contact_number, encrypted_next_of_kin_home_address, encrypted_emergency_email_address))
         # Commit to the database
         conn.commit()
@@ -124,13 +124,13 @@ def update_patient(Patient_ID, name, dob, contact_number, email_address, home_ad
         encrypted_next_of_kin_home_address = encrypt(next_of_kin_home_address)
         encrypted_emergency_email_address = encrypt(emergency_email_address)
 
-        update_query = '''
-        UPDATE patient_profile 
-        SET Name=%s, DOB=%s, Contact_Number=%s, Email_Address=%s, 
-            Home_Address=%s, Next_Of_Kin_Name=%s, Emergency_Contact_Number=%s, 
-            Next_Of_Kin_Home_Address=%s, Emergency_Email_Address=%s
-        WHERE Patient_ID=%s
-        '''
+        update_query = """
+            UPDATE patient_profile 
+            SET Name=%s, DOB=%s, Contact_Number=%s, Email_Address=%s, 
+                Home_Address=%s, Next_Of_Kin_Name=%s, Emergency_Contact_Number=%s, 
+                Next_Of_Kin_Home_Address=%s, Emergency_Email_Address=%s
+            WHERE Patient_ID=%s
+        """
         cursor.execute(update_query, (encrypted_name, encrypted_dob, encrypted_contact_number,
                                     encrypted_email_address, encrypted_home_address,
                                     encrypted_next_of_kin_name, encrypted_emergency_contact_number,
@@ -198,11 +198,11 @@ def add_patient_medical_info(patient_id, names, dosages, history, medical_files,
         encrypted_history = encrypt(history)
         encrypted_allergies = encrypt(allergies)
 
-        dashboard_query = '''
+        dashboard_query = """
             INSERT INTO medical_dashboard 
             (Patient_ID, Medications, Medical_History, Allergies)
             VALUES (%s, %s, %s, %s)
-        '''
+        """
         cursor.execute(dashboard_query, (
             patient_id,
             encrypted_medications,
@@ -215,10 +215,10 @@ def add_patient_medical_info(patient_id, names, dosages, history, medical_files,
 
         if medical_files:
             for file_data, filename in zip(medical_files, medical_filenames):
-                file_insert = '''
+                file_insert = """
                     INSERT INTO medical_files (Patient_Medical_Dashboard_ID, File_Name, File_Data)
                     VALUES (%s, %s, %s)
-                '''
+                """
                 cursor.execute(file_insert, (dashboard_id, filename, file_data))
 
         conn.commit()
@@ -339,9 +339,10 @@ def add_roster(day, shift_time, carer, patient):
     cursor = conn.cursor()
 
     try:
-        query = ''' INSERT INTO roster (Day, Shift_Time, Carer, Patient)
+        query = """ 
+            INSERT INTO roster (Day, Shift_Time, Carer, Patient)
             VALUES (%s, %s, %s, %s)
-        '''
+        """
         encrypted_day = encrypt(day)
         encrypted_shift_time = encrypt(shift_time)
         encrypted_carer = encrypt(carer)
@@ -398,7 +399,7 @@ def delete_roster(roster_id):
     cursor = conn.cursor()
 
     try:
-        query = '''DELETE FROM roster WHERE Roster_ID = %s'''
+        query = "DELETE FROM roster WHERE Roster_ID = %s"
         cursor.execute(query, (roster_id,))
         conn.commit()
         return True
@@ -417,7 +418,7 @@ def get_patient():
     cursor = conn.cursor()
 
     try:
-        query = '''SELECT Name FROM patient_profile'''
+        query = "SELECT Name FROM patient_profile"
         cursor.execute(query)
         patients  = []
         for (encrypted_name,) in cursor.fetchall():
@@ -439,7 +440,7 @@ def get_carers():
     cursor = conn.cursor()
 
     try :
-        query = '''SELECT Username FROM users WHERE role = "carer"'''
+        query = "SELECT Username FROM users WHERE role = 'carer'"
         cursor.execute(query)
         carers = [row[0] for row in cursor.fetchall()]
         return carers
@@ -505,13 +506,13 @@ def reencryption():
                 else:
                     decrypted_fields.append(None)
 
-            update_query = '''
+            update_query = """
                 UPDATE patient_profile 
                 SET Name=%s, DOB=%s, Contact_Number=%s, Email_Address=%s, 
                     Home_Address=%s, Next_Of_Kin_Name=%s, Emergency_Contact_Number=%s, 
                     Next_Of_Kin_Home_Address=%s, Emergency_Email_Address=%s
                 WHERE Patient_ID=%s
-            '''
+            """
             cursor.execute(update_query, (*decrypted_fields, patient_id))
 
         cursor.execute("SELECT Patient_ID, Medications, Medical_History, Allergies FROM medical_dashboard")

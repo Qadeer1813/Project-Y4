@@ -1,4 +1,5 @@
 import io
+from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, FileResponse
@@ -64,6 +65,7 @@ def home(request):
 
     return render(request, 'home.html', {
         'maintenance_mode': config.MAINTENANCE_MODE,
+        'debug': settings.DEBUG
     })
 
 @never_cache
@@ -78,6 +80,10 @@ def maintenance_mode(request):
         config.MAINTENANCE_MODE = False
         return JsonResponse({'status': 'started'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+@never_cache
+def maintenance_status(request):
+    return JsonResponse({'maintenance_mode': config.MAINTENANCE_MODE})
 
 @never_cache
 def create_patient_profile(request):
@@ -322,6 +328,7 @@ def roster_view(request):
     rosters = roster_entries()
     return render(request, "roster.html", {"rosters": rosters})
 
+@never_cache
 def add_roster_view(request):
     if request.method == 'POST':
         day = request.POST.get('Day')
@@ -340,7 +347,7 @@ def add_roster_view(request):
     patients = get_patient()
     return render(request, 'add_roster.html', {'carers': carers, 'patients': patients})
 
-
+@never_cache
 def delete_roster_view(request, roster_id):
     if request.method == 'POST':
         if delete_roster(roster_id):

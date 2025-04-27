@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from CareNet.views import (login, logout, create_user_view, home, create_patient_profile, search_patient_profile, update_patient_profile, delete_patient_profile,
                            medical_dashboard, patient_medical_dashboard_details, download_medical_file, add_patient_medical_details, maintenance_mode, roster_view,
-                           add_roster_view, delete_roster_view)
+                           add_roster_view, delete_roster_view, maintenance_status)
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
@@ -29,6 +29,7 @@ urlpatterns = [
     path('create_user/', create_user_view, name='create_user'),
     path('', home, name='home'),
     path('maintenance/', maintenance_mode, name='maintenance_mode'),
+    path('maintenance-status/', maintenance_status, name='maintenance_status'),
     path('create_patient/', create_patient_profile, name='create_patient_profile'),
     path('search_patient/', search_patient_profile, name='search_patient_profile'),
     path('update_patient/', update_patient_profile, name='update_patient_profile'),

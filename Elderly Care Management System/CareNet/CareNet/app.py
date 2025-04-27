@@ -1,8 +1,9 @@
 import json
 import mysql.connector
-
 from .functions import *
 from .config import *
+from . import config
+import time
 
 def get_db_connection():
     try:
@@ -184,6 +185,7 @@ def patient_medical_info(patient_id):
         if conn:
             conn.close()
 
+# Add patient medical information
 def add_patient_medical_info(patient_id, names, dosages, history, medical_files, medical_filenames, allergies):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -230,6 +232,7 @@ def add_patient_medical_info(patient_id, names, dosages, history, medical_files,
         if cursor: cursor.close()
         if conn: conn.close()
 
+#
 def patient_medical_dashboard_info(patient_id):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -270,6 +273,7 @@ def patient_medical_dashboard_info(patient_id):
         if cursor: cursor.close()
         if conn: conn.close()
 
+# Update patient medical dashboard
 def update_patient_medical_info(patient_id, names, dosages, history, new_files, new_file_names, allergies, delete_flags):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -329,6 +333,7 @@ def update_patient_medical_info(patient_id, names, dosages, history, new_files, 
         if conn:
             conn.close()
 
+# Add roster entry
 def add_roster(day, shift_time, carer, patient):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -354,6 +359,7 @@ def add_roster(day, shift_time, carer, patient):
         if conn:
             conn.close()
 
+# Roster entries
 def roster_entries():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -386,6 +392,7 @@ def roster_entries():
         if conn:
             conn.close()
 
+# Delete roster
 def delete_roster(roster_id):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -404,6 +411,7 @@ def delete_roster(roster_id):
         if conn:
             conn.close()
 
+# Get all patients names
 def get_patient():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -425,6 +433,7 @@ def get_patient():
         if conn:
             conn.close()
 
+# Get all Carer's
 def get_carers():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -443,6 +452,7 @@ def get_carers():
         if conn:
             conn.close()
 
+# Re-encryption logic
 def reencryption():
     print("Starting re-encryption process...")
 
@@ -457,6 +467,7 @@ def reencryption():
 
         else:
             print(f"Manual key rotation detected (key created at {refreshed_timestamp}).")
+            config.MAINTENANCE_MODE = True
             new_key = refreshed_key
 
         if new_key == old_key:
@@ -547,6 +558,10 @@ def reencryption():
             print(f"Warning: Failed to re-encrypt records for patients: {failed_records}")
         else:
             print("Re-encryption complete.")
+
+        config.MAINTENANCE_MODE = False
+        print("Re-encryption complete. Maintenance mode ended.")
+        time.sleep(5)
 
     except Exception as e:
         print(f"Critical error during re-encryption: {e}")

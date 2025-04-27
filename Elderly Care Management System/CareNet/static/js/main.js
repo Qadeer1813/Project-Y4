@@ -148,6 +148,10 @@ $('#saveButton').click(function () {
                 $('.patient-field').prop('readonly', true);
                 $('#saveButton').hide();
                 $('#editButton').show();
+
+                $('#detailCard').hide();
+                $('#resultsCard').hide();
+                $('#searchForm').submit();
             } else {
                 alert('Error updating patient');
             }

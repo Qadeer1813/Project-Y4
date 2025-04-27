@@ -6,7 +6,7 @@ from django.http import HttpResponse, JsonResponse, FileResponse
 from django.views.decorators.cache import never_cache
 from .app import create_patient, search_patient, decrypt_patient_data, update_patient, delete_patient, reencryption, \
     patient_medical_info, add_patient_medical_info, patient_medical_dashboard_info, update_patient_medical_info, \
-    add_roster, roster_entries, delete_roster, get_carers, get_patient
+    add_roster, roster_entries, delete_roster, get_carers, get_patient, add_care_plan, update_care_plan, get_care_plan, get_medication
 from . import config
 from .functions import get_encryption_key, verify_password, current_key
 from .authentication_service import *
@@ -356,3 +356,92 @@ def delete_roster_view(request, roster_id):
         else:
             messages.error(request, "Roster entry could not be deleted")
         return redirect('roster')
+
+@never_cache
+def care_planner_search(request):
+    if request.method == 'POST':
+        search_type = request.POST.get('search_type')
+        search_value = request.POST.get('search_value')
+
+        key = get_encryption_key()
+
+        if search_type == 'Name':
+            results = search_patient(name=search_value, key=key)
+        else:
+            results = search_patient(dob=search_value, key=key)
+
+        if results:
+            decrypted = decrypt_patient_data(results, key)
+
+            patients_info = []
+            for patient in decrypted:
+                patients_info.append({
+                    'Patient_ID': patient[0],
+                    'Name': patient[1],
+                    'DOB': patient[2],
+                    'Contact_Number': patient[3],
+                })
+
+            return JsonResponse({
+                'status': 'success',
+                'patients': patients_info
+            })
+
+        return JsonResponse({'status': 'not_found'})
+
+    return render(request, 'care_planner_search.html')
+
+@never_cache
+def patient_care_planner_details(request, patient_id):
+    key = get_encryption_key()
+    patient_data = search_patient(key=key)
+
+    selected = [p for p in patient_data if p[0] == patient_id]
+    if not selected:
+        return HttpResponse("Patient not found", status=404)
+
+    decrypted_patient = decrypt_patient_data([selected[0]], key)[0]
+
+    care_plan = get_care_plan(patient_id)
+
+    # NEW PART: fetch medications
+    medical_info = get_medication(patient_id)
+
+    if request.method == "POST":
+        activity_names = request.POST.getlist('activity_name[]')
+        activity_completed = request.POST.getlist('activity_completed[]')
+
+        activities = []
+        for i, name in enumerate(activity_names):
+            completed = i < len(activity_completed)
+            activities.append({
+                'activity': name,
+                'completed': completed
+            })
+
+        notes = request.POST.get('Notes') or "N/A"
+
+        if care_plan:
+            update_care_plan(care_plan['Care_Planner_ID'], activities, notes)
+        else:
+            add_care_plan(patient_id, activities, notes)
+
+        return redirect('patient_care_planner_details', patient_id=patient_id)
+
+    has_data = False
+    if care_plan:
+        activities = care_plan.get('Daily_Activities', [])
+        notes = care_plan.get('Notes')
+        if activities or notes:
+            has_data = True
+
+    return render(request, 'patient_care_planner_details.html', {
+        'patient': {
+            'Patient_ID': decrypted_patient[0],
+            'Name': decrypted_patient[1],
+            'DOB': decrypted_patient[2]
+        },
+        'care_plan': care_plan,
+        'medical_info': medical_info,
+        'has_data': has_data
+    })

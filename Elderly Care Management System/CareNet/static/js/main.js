@@ -7,7 +7,8 @@ function setupSearchForm({
     nameInputId,
     dobInputId,
     resultCardId,
-    showDashboardLink = false
+    showDashboardLink = false,
+    showCarePlanLink =false
 }) {
     const $form = $(formId);
     const $nameField = $(nameInputId).closest('.form-group');
@@ -48,13 +49,20 @@ function setupSearchForm({
                     $resultsList.empty();
 
                     response.patients.forEach((p, index) => {
+                        let buttonHtml = '';
+
+                        if (showDashboardLink) {
+                            buttonHtml = `<a href="/medical-dashboard/details/${p.Patient_ID}" class="btn btn-sm btn-outline-primary ml-2">View Dashboard</a>`;
+                        } else if (showCarePlanLink) {
+                            buttonHtml = `<a href="/care_planner/${p.Patient_ID}" class="btn btn-sm btn-outline-primary ml-2">View Care Plan</a>`;
+                        }
                         let html = `
                             <div class="row patient-result p-2 border-bottom" data-index="${index}">
                                 <div class="col-4">${p.Name}</div>
                                 <div class="col-4">${p.DOB}</div>
                                 <div class="col-4 d-flex justify-content-between align-items-center">
                                     <span>${p.Contact_Number || 'N/A'}</span>
-                                    ${showDashboardLink ? `<a href="/medical-dashboard/details/${p.Patient_ID}" class="btn btn-sm btn-outline-primary ml-2">View Dashboard</a>` : ''}
+                                    ${buttonHtml}
                                 </div>
                             </div>`;
                         $resultsList.append(html);
@@ -84,7 +92,8 @@ $(document).ready(function () {
             nameInputId: '#searchName',
             dobInputId: '#searchDob',
             resultCardId: '#resultsCard',
-            showDashboardLink: false
+            showDashboardLink: false,
+            showCarePlanLink: false
         });
     }
 
@@ -94,7 +103,19 @@ $(document).ready(function () {
             nameInputId: '#searchName',
             dobInputId: '#searchDob',
             resultCardId: '#resultsCard',
-            showDashboardLink: true
+            showDashboardLink: true,
+            showCarePlanLink: false
+        });
+    }
+
+    if ($('#carePlannerSearchForm').length) {
+        setupSearchForm({
+            formId: '#carePlannerSearchForm',
+            nameInputId: '#searchName',
+            dobInputId: '#searchDob',
+            resultCardId: '#resultsCard',
+            showDashboardLink: false,
+            showCarePlanLink: true
         });
     }
 });
@@ -310,5 +331,81 @@ $(document).ready(function () {
             });
         }
     }
+});
+
+// ====================
+// Care Plan Logic
+// ====================
+$(document).ready(function () {
+    if ($('#activitiesWrapper').length) {
+        $('#addActivityBtn').on('click', function () {
+            const newRow = `
+                <div class="form-row mb-2 activity-row">
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" name="activity_name[]" required placeholder="Activity Name">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-center">
+                        <input type="checkbox" name="activity_completed[]" value="1">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-danger remove-activity-btn">Remove</button>
+                    </div>
+                </div>
+            `;
+            $('#activitiesWrapper').append(newRow);
+        });
+
+        $(document).on('click', '.remove-activity-btn', function () {
+            $(this).closest('.activity-row').remove();
+        });
+    }
+});
+
+$(document).ready(function () {
+    const carePlanForm = $('#carePlanForm');
+
+    if (carePlanForm.length) {
+        carePlanForm.on('submit', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: window.location.href,
+                type: 'POST',
+                data: carePlanForm.serialize(),
+                success: function (response) {
+                    alert('Care plan saved successfully!');
+                    window.location.href = '/care_planner/';
+                },
+                error: function () {
+                    alert('Error saving care plan.');
+                }
+            });
+        });
+    }
+});
+
+$(document).ready(function () {
+    $('#startAddingCarePlan').click(function () {
+        $('#noCarePlanDataNotice').hide();
+        $('#carePlanForm').show();
+    });
+});
+
+$('#cancelCarePlanBtn').click(function () {
+    location.reload();
+});
+
+$(document).ready(function () {
+    $('#editCarePlanBtn').click(function () {
+        $('#carePlanForm input:not([name="Medication_Name\\[\\]"]):not([name="Medication_Dosage\\[\\]"]), #carePlanForm textarea, #carePlanForm select')
+            .prop('readonly', false)
+            .prop('disabled', false);
+
+        $('.edit-only').removeClass('d-none');
+        $('#editCarePlanBtn').hide();
+        $('#saveCarePlanBtn').show();
+        $('#editOnlySection').removeClass('d-none');
+        $('#cancelCarePlanBtn').show();
+  });
 });
 

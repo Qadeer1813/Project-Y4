@@ -1,5 +1,7 @@
 import json
 import mysql.connector
+from mysql.connector import cursor
+
 from .functions import *
 from .config import *
 from . import config
@@ -453,6 +455,136 @@ def get_carers():
         if conn:
             conn.close()
 
+def add_care_plan(patient_id, daily_activities, notes):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        activities = json.dumps(daily_activities)
+
+        encrypted_activities = encrypt(activities)
+        encrypted_notes = encrypt(notes)
+
+        query = """
+            INSERT INTO care_planner (Patient_ID, Daily_Activities, Notes)
+            VALUES (%s, %s, %s)
+        """
+        cursor.execute(query, (patient_id, encrypted_activities, encrypted_notes))
+        conn.commit()
+        return True
+    except mysql.connector.Error as e:
+        print("Error adding care plan:", e)
+        return False
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def get_care_plan(patient_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        query = """
+            SELECT Care_Planner_ID, Daily_Activities, Notes
+            FROM care_planner
+            WHERE Patient_ID = %s
+        """
+        cursor.execute(query, (patient_id,))
+        result = cursor.fetchone()
+        if result:
+            key = get_encryption_key()
+
+            decrypted_activities_raw = decrypt(result[1], key=key)
+            decrypted_activities_list = json.loads(decrypted_activities_raw)
+
+            activities = []
+            for item in decrypted_activities_list:
+                if isinstance(item, dict):
+                    activities.append(item)
+                else:
+                    activities.append({
+                        "activity": item,
+                        "completed": False
+                    })
+
+            decrypted_notes = decrypt(result[2], key=key)
+
+            return {
+                "Care_Planner_ID": result[0],
+                "Daily_Activities": activities,
+                "Notes": decrypted_notes,
+            }
+        return None
+    except mysql.connector.Error as e:
+        print("Error getting care plan:", e)
+        return False
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def update_care_plan(care_plan_id, daily_activities, notes):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        activities = json.dumps(daily_activities)
+
+        encrypted_activities = encrypt(activities)
+        encrypted_notes = encrypt(notes)
+
+        query = """
+            UPDATE care_planner
+            SET Daily_Activities = %s, Notes = %s
+            WHERE Care_Planner_ID = %s
+        """
+        cursor.execute(query, (encrypted_activities, encrypted_notes, care_plan_id))
+        conn.commit()
+        return True
+    except mysql.connector.Error as e:
+        print("Error updating care plan:", e)
+        return False
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def get_medication(patient_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        query = """
+                SELECT Medications
+                FROM medical_dashboard
+                WHERE Patient_ID = %s
+            """
+        cursor.execute(query, (patient_id,))
+        result = cursor.fetchone()
+
+        if result and result['Medications']:
+            key = get_encryption_key()
+            decrypted_medications = decrypt(result['Medications'], key=key)
+            medications_list = json.loads(decrypted_medications)
+            return {
+                "medications": medications_list
+            }
+        else:
+            return {
+                "medications": []
+            }
+    except mysql.connector.Error as e:
+        print("Error getting medical dashboard info:", e)
+        return {
+            "medications": []
+        }
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
 # Re-encryption logic
 def reencryption():
     print("Starting re-encryption process...")
@@ -550,6 +682,22 @@ def reencryption():
             except Exception as e:
                 print(f"Error processing roster for Roster_ID={roster_id}: {e}")
                 failed_records.append(roster_id)
+
+        cursor.execute("SELECT Care_Planner_ID, Daily_Activities, Notes FROM care_planner")
+        care_plans = cursor.fetchall()
+
+        for care_plan_id, daily_activities, notes in care_plans:
+            try:
+                daily_activities = fernet_new.encrypt(fernet_old.decrypt(daily_activities.encode())).decode()
+                notes = fernet_new.encrypt(fernet_old.decrypt(notes.encode())).decode()
+
+                cursor.execute(
+                    "UPDATE care_planner SET Daily_Activities=%s, Notes=%s WHERE Care_Planner_ID=%s",
+                    (daily_activities, notes, care_plan_id)
+                )
+            except Exception as e:
+                print(f"Error processing care_planner for Care_Planner_ID={care_plan_id}: {e}")
+                failed_records.append(care_plan_id)
 
         conn.commit()
         cursor.close()

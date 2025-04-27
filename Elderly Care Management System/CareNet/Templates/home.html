@@ -65,7 +65,7 @@
                     </div>
                     <a href="{% url 'medical_dashboard' %}" class="btn btn-primary mb-2" style="width: 200px;">Medical Dashboard</a>
                     <a href="{% url 'roster' %}" class="btn btn-primary mb-2" style="width: 200px;">Roster</a>
-                    <a href="#" class="btn btn-primary mb-2" style="width: 200px;">Care Planner</a>
+                    <a href="{% url 'care_planner' %}" class="btn btn-primary mb-2" style="width: 200px;">Care Planner</a>
                     {% if request.session.role == 'admin' %}
                         <button id="maintenanceBtn" class="btn btn-danger btn-block mt-3" style="width: 200px;">Enter Maintenance Mode</button>
                     {% endif %}

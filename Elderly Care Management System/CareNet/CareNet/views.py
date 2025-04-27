@@ -14,6 +14,7 @@ from .authentication_service import *
 # Create your views here.
 @never_cache
 def login(request):
+    list(messages.get_messages(request))
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -21,7 +22,6 @@ def login(request):
         user = get_user_by_username(username)
 
         if user and verify_password(user[0], password):
-            list(messages.get_messages(request))
             request.session['username'] = username
             request.session['role'] = user[1]
             return redirect('home')

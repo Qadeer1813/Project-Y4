@@ -21,6 +21,7 @@ def login(request):
         user = get_user_by_username(username)
 
         if user and verify_password(user[0], password):
+            list(messages.get_messages(request))
             request.session['username'] = username
             request.session['role'] = user[1]
             return redirect('home')

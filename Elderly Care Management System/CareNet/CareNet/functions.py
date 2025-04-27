@@ -12,6 +12,7 @@ def get_headers():
         "Authorization": f"Bearer {API_TOKEN}"
     }
 
+# Get Encryption Key
 def get_encryption_key(force_refresh=False):
     global current_key, previous_key
 
@@ -28,6 +29,7 @@ def get_encryption_key(force_refresh=False):
 
     return current_key
 
+# Get encryption key with meta data
 def get_encryption_key_with_metadata():
     headers = get_headers()
     response = requests.get(API_ENDPOINTS['current_key'], headers=headers)
@@ -37,6 +39,7 @@ def get_encryption_key_with_metadata():
     else:
         raise Exception(f"Failed to get encryption key: {response.status_code}")
 
+# Refresh encryption key
 def refresh_encryption_key():
     global current_key, previous_key
 
@@ -110,8 +113,10 @@ def decrypt_patient_data(patient_data, key= None):
         decrypted_patient_data.append(decrypted_row)
     return decrypted_patient_data
 
+# Hash the password
 def hash_password(password):
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
+# Verify Password
 def verify_password(stored_hash, input_password):
     return bcrypt.checkpw(input_password.encode(), stored_hash.encode())

@@ -1,7 +1,6 @@
 import json
 import mysql.connector
 from mysql.connector import cursor
-
 from .functions import *
 from .config import *
 from . import config
@@ -167,6 +166,7 @@ def delete_patient(patient_id):
         if conn:
             conn.close()
 
+# Patient medical information
 def patient_medical_info(patient_id):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -234,7 +234,7 @@ def add_patient_medical_info(patient_id, names, dosages, history, medical_files,
         if cursor: cursor.close()
         if conn: conn.close()
 
-#
+# Patient medical dashboard information
 def patient_medical_dashboard_info(patient_id):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -455,6 +455,7 @@ def get_carers():
         if conn:
             conn.close()
 
+# Add Care Plan
 def add_care_plan(patient_id, daily_activities, notes):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -480,6 +481,7 @@ def add_care_plan(patient_id, daily_activities, notes):
         if conn:
             conn.close()
 
+# Get Care Plan
 def get_care_plan(patient_id):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -524,6 +526,7 @@ def get_care_plan(patient_id):
         if conn:
             conn.close()
 
+# Update Care Plan
 def update_care_plan(care_plan_id, daily_activities, notes):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -550,6 +553,7 @@ def update_care_plan(care_plan_id, daily_activities, notes):
         if conn:
             conn.close()
 
+# Get Medication
 def get_medication(patient_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)

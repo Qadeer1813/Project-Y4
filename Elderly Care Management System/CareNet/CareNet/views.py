@@ -12,6 +12,7 @@ from .functions import get_encryption_key, verify_password, current_key
 from .authentication_service import *
 
 # Create your views here.
+# User Login
 @never_cache
 def login(request):
     list(messages.get_messages(request))
@@ -30,11 +31,13 @@ def login(request):
 
     return render(request, 'login.html')
 
+# Logout
 @never_cache
 def logout(request):
     request.session.flush()
     return redirect('login')
 
+# Create a user
 @never_cache
 def create_user_view(request):
     if request.session.get('role') != 'admin':
@@ -55,6 +58,7 @@ def create_user_view(request):
 
     return render(request, 'create_user.html')
 
+# Home
 @never_cache
 def home(request):
     if current_key is None:
@@ -69,6 +73,7 @@ def home(request):
         'debug': settings.DEBUG
     })
 
+# Maintenance
 @never_cache
 def maintenance_mode(request):
     if request.method == 'POST':
@@ -86,6 +91,7 @@ def maintenance_mode(request):
 def maintenance_status(request):
     return JsonResponse({'maintenance_mode': config.MAINTENANCE_MODE})
 
+# Patient Profile
 @never_cache
 def create_patient_profile(request):
     if request.method == 'POST':
@@ -106,6 +112,7 @@ def create_patient_profile(request):
     else:
         return render(request, 'create_patient_profile.html')
 
+# Search Patient Profile
 @never_cache
 def search_patient_profile(request):
     if request.method == 'POST':
@@ -124,12 +131,9 @@ def search_patient_profile(request):
         print(f"Found {len(results) if results else 0} results")  # TODO need to remove debug line
 
         if results:
-            # Decrypt the patient data
             decrypted_results = decrypt_patient_data(results, key)
-            # Create a list to hold all patient data
             patients_data = []
 
-            # Process all results
             for result in decrypted_results:
                 patient_data = {
                     'Patient_ID': result[0],
@@ -151,6 +155,7 @@ def search_patient_profile(request):
 
     return render(request, 'search_patient_profile.html')
 
+# Update Patient Profile
 @never_cache
 def update_patient_profile(request):
     if request.method == 'POST':
@@ -173,6 +178,7 @@ def update_patient_profile(request):
         return JsonResponse({'status': 'success' if success else 'error'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
+# Delete Patient Profile
 @never_cache
 def delete_patient_profile(request):
     if request.method == 'POST':
@@ -181,6 +187,7 @@ def delete_patient_profile(request):
         return JsonResponse({'status': 'success' if success else 'error'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
+# Medical Dashboard
 @never_cache
 def medical_dashboard(request):
     if request.method == 'POST':
@@ -217,6 +224,7 @@ def medical_dashboard(request):
 
     return render(request, 'medical_dashboard.html')
 
+# Patient Medical Dashboard Details
 @never_cache
 def patient_medical_dashboard_details(request, patient_id):
     key = get_encryption_key()
@@ -272,6 +280,7 @@ def patient_medical_dashboard_details(request, patient_id):
         "has_data": has_data
     })
 
+# Download Files
 @never_cache
 def download_medical_file(request, patient_id, file_index):
     medical_info = patient_medical_dashboard_info(patient_id)
@@ -282,6 +291,7 @@ def download_medical_file(request, patient_id, file_index):
     file_stream = io.BytesIO(file["data"])
     return FileResponse(file_stream, as_attachment=True, filename=file["filename"])
 
+# Add Patient Medical Details
 @never_cache
 def add_patient_medical_details(request, patient_id):
     key = get_encryption_key()
@@ -325,10 +335,12 @@ def add_patient_medical_details(request, patient_id):
         }
     })
 
+# Roster view
 def roster_view(request):
     rosters = roster_entries()
     return render(request, "roster.html", {"rosters": rosters})
 
+# Add Roster
 @never_cache
 def add_roster_view(request):
     if request.method == 'POST':
@@ -348,6 +360,7 @@ def add_roster_view(request):
     patients = get_patient()
     return render(request, 'add_roster.html', {'carers': carers, 'patients': patients})
 
+# Delete Roster
 @never_cache
 def delete_roster_view(request, roster_id):
     if request.method == 'POST':
@@ -357,6 +370,7 @@ def delete_roster_view(request, roster_id):
             messages.error(request, "Roster entry could not be deleted")
         return redirect('roster')
 
+# Care Planner Search
 @never_cache
 def care_planner_search(request):
     if request.method == 'POST':
@@ -391,6 +405,7 @@ def care_planner_search(request):
 
     return render(request, 'care_planner_search.html')
 
+# Patient Care Planner Details
 @never_cache
 def patient_care_planner_details(request, patient_id):
     key = get_encryption_key()

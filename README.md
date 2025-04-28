@@ -1,3 +1,9 @@
+# Elderly Care Management System
+
+Project Author: Qadeer Hussain
+SETU Carlow
+Date: 28/04/2025
+
 # NOTE
 
 Please make the following file in the \Elderly Care Management System\CareNet\CareNet directory 

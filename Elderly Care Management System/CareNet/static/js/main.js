@@ -2,14 +2,7 @@
 // Shared Search Handler
 // ====================
 
-function setupSearchForm({
-    formId,
-    nameInputId,
-    dobInputId,
-    resultCardId,
-    showDashboardLink = false,
-    showCarePlanLink =false
-}) {
+function setupSearchForm({ formId, nameInputId, dobInputId, resultCardId, showDashboardLink = false, showCarePlanLink = false }) {
     const $form = $(formId);
     const $nameField = $(nameInputId).closest('.form-group');
     const $dobField = $(dobInputId).closest('.form-group');
@@ -41,22 +34,17 @@ function setupSearchForm({
                 search_value: searchValue
             },
             success: function (response) {
+                $resultsList.empty();
                 if (response.status === 'success' && response.patients.length > 0) {
-                     window.searchResults = response;
-
+                    window.searchResults = response;
                     $resultsCard.show();
                     $alert.hide();
-                    $resultsList.empty();
-
                     response.patients.forEach((p, index) => {
-                        let buttonHtml = '';
-
-                        if (showDashboardLink) {
-                            buttonHtml = `<a href="/medical-dashboard/details/${p.Patient_ID}" class="btn btn-sm btn-outline-primary ml-2">View Dashboard</a>`;
-                        } else if (showCarePlanLink) {
-                            buttonHtml = `<a href="/care_planner/${p.Patient_ID}" class="btn btn-sm btn-outline-primary ml-2">View Care Plan</a>`;
-                        }
-                        let html = `
+                        const buttonHtml = showDashboardLink
+                            ? `<a href="/medical-dashboard/details/${p.Patient_ID}" class="btn btn-sm btn-outline-primary ml-2">View Dashboard</a>`
+                            : showCarePlanLink
+                            ? `<a href="/care_planner/${p.Patient_ID}" class="btn btn-sm btn-outline-primary ml-2">View Care Plan</a>` : '';
+                        const html = `
                             <div class="row patient-result p-2 border-bottom" data-index="${index}">
                                 <div class="col-4">${p.Name}</div>
                                 <div class="col-4">${p.DOB}</div>
@@ -70,7 +58,6 @@ function setupSearchForm({
                 } else {
                     $resultsCard.hide();
                     $alert.show();
-                    $resultsList.empty();
                 }
             },
             error: function () {
@@ -83,329 +70,212 @@ function setupSearchForm({
 }
 
 // ====================
-// Search Usage
+// Helpers
 // ====================
+
+function startAdding(formSelector, noticeSelector, showEditSection = false) {
+    $(formSelector).show();
+    $(noticeSelector).remove();
+    if (showEditSection) {
+        $('#editOnlySection').removeClass('d-none');
+    }
+}
+
+function RemovalButton(buttonSelector, hiddenInputSelector) {
+    $(document).on('click', buttonSelector, function () {
+        const row = $(this).closest('.form-row, .file-entry');
+        row.find(hiddenInputSelector).val("1");
+        row.addClass('text-muted').fadeTo(300, 0.5);
+        $(this).text("Marked").prop('disabled', true);
+    });
+}
+
+// ====================
+// Main Logic
+// ====================
+
 $(document).ready(function () {
-    if ($('#searchForm').length) {
-        setupSearchForm({
-            formId: '#searchForm',
-            nameInputId: '#searchName',
-            dobInputId: '#searchDob',
-            resultCardId: '#resultsCard',
-            showDashboardLink: false,
-            showCarePlanLink: false
-        });
-    }
 
-    if ($('#medicalSearchForm').length) {
-        setupSearchForm({
-            formId: '#medicalSearchForm',
-            nameInputId: '#searchName',
-            dobInputId: '#searchDob',
-            resultCardId: '#resultsCard',
-            showDashboardLink: true,
-            showCarePlanLink: false
-        });
-    }
+    // Search forms
+    const searchForms = [
+        { id: '#searchForm', dashboard: false, careplan: false },
+        { id: '#medicalSearchForm', dashboard: true, careplan: false },
+        { id: '#carePlannerSearchForm', dashboard: false, careplan: true }
+    ];
+    searchForms.forEach(form => {
+        if ($(form.id).length) {
+            setupSearchForm({
+                formId: form.id,
+                nameInputId: '#searchName',
+                dobInputId: '#searchDob',
+                resultCardId: '#resultsCard',
+                showDashboardLink: form.dashboard,
+                showCarePlanLink: form.careplan
+            });
+        }
+    });
 
-    if ($('#carePlannerSearchForm').length) {
-        setupSearchForm({
-            formId: '#carePlannerSearchForm',
-            nameInputId: '#searchName',
-            dobInputId: '#searchDob',
-            resultCardId: '#resultsCard',
-            showDashboardLink: false,
-            showCarePlanLink: true
-        });
-    }
-});
-
-// ====================
-// Patient Profile Logic
-// ====================
-$(document).on('click', '.patient-result', function () {
-    if ($('#patientForm').length) {
+    // Patient form view/edit/save/delete
+    $(document).on('click', '.patient-result', function () {
         const index = $(this).data('index');
         const patient = window.searchResults.patients[index];
 
-        $('#Patient_ID').val(patient.Patient_ID);
-        $('#Name').val(patient.Name);
-        $('#DOB').val(patient.DOB);
-        $('#Contact_Number').val(patient.Contact_Number);
-        $('#Email_Address').val(patient.Email_Address);
-        $('#Home_Address').val(patient.Home_Address);
-        $('#Next_Of_Kin_Name').val(patient.Next_Of_Kin_Name);
-        $('#Emergency_Contact_Number').val(patient.Emergency_Contact_Number);
-        $('#Emergency_Email_Address').val(patient.Emergency_Email_Address);
-        $('#Next_Of_Kin_Home_Address').val(patient.Next_Of_Kin_Home_Address);
+        ['Patient_ID', 'Name', 'DOB', 'Contact_Number', 'Email_Address', 'Home_Address', 'Next_Of_Kin_Name', 'Emergency_Contact_Number', 'Emergency_Email_Address', 'Next_Of_Kin_Home_Address']
+            .forEach(id => $(`#${id}`).val(patient[id]));
 
         $('#resultsCard').hide();
         $('#detailCard').show();
         $('.patient-field').prop('readonly', true);
         $('#saveButton').hide();
         $('#editButton').show();
-    }
-});
-
-$('#backToResults').click(function () {
-    $('#detailCard').hide();
-    $('#resultsCard').show();
-});
-
-$('#editButton').click(function () {
-    $('.patient-field').prop('readonly', false);
-    $('#editButton').hide();
-    $('#saveButton').show();
-});
-
-$('#saveButton').click(function () {
-    $.ajax({
-        url: $('#patientForm').data('update-url'),
-        type: 'POST',
-        data: $('#patientForm').serialize() + '&csrfmiddlewaretoken=' + $('input[name=csrfmiddlewaretoken]').val(),
-        success: function (response) {
-            if (response.status === 'success') {
-                alert('Patient updated successfully');
-                $('.patient-field').prop('readonly', true);
-                $('#saveButton').hide();
-                $('#editButton').show();
-
-                $('#detailCard').hide();
-                $('#resultsCard').hide();
-                $('#searchForm').submit();
-            } else {
-                alert('Error updating patient');
-            }
-        },
-        error: function () {
-            alert('An error occurred while updating.');
-        }
     });
-});
 
-$('#deleteButton').click(function () {
-    const Patient_ID = $('#Patient_ID').val();
-    if (confirm('Are you sure you want to delete this patient?')) {
+    $('#backToResults').click(() => {
+        $('#detailCard').hide();
+        $('#resultsCard').show();
+    });
+
+    $('#editButton').click(() => {
+        $('.patient-field').prop('readonly', false);
+        $('#editButton').hide();
+        $('#saveButton').show();
+    });
+
+    $('#saveButton').click(() => {
         $.ajax({
-            url: $('#patientForm').data('delete-url'),
+            url: $('#patientForm').data('update-url'),
             type: 'POST',
-            data: {
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
-                Patient_ID: Patient_ID
-            },
+            data: $('#patientForm').serialize() + '&csrfmiddlewaretoken=' + $('input[name=csrfmiddlewaretoken]').val(),
             success: function (response) {
                 if (response.status === 'success') {
-                    alert('Patient deleted');
+                    alert('Patient updated successfully');
+                    $('.patient-field').prop('readonly', true);
+                    $('#saveButton').hide();
+                    $('#editButton').show();
                     $('#detailCard').hide();
-                    $('#resultsCard').show();
+                    $('#resultsCard').hide();
                     $('#searchForm').submit();
                 } else {
-                    alert('Error deleting patient');
+                    alert('Error updating patient');
                 }
             },
-            error: function () {
-                alert('Delete failed');
-            }
+            error: () => alert('An error occurred while updating.')
         });
-    }
-});
+    });
 
-// ====================
-// Dynamic Medication Fields
-// ====================
-let medicationIndex = 1;
+    $('#deleteButton').click(function () {
+        const Patient_ID = $('#Patient_ID').val();
+        if (confirm('Are you sure you want to delete this patient?')) {
+            $.ajax({
+                url: $('#patientForm').data('delete-url'),
+                type: 'POST',
+                data: {
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                    Patient_ID: Patient_ID
+                },
+                success: function (response) {
+                    if (response.status === 'success') {
+                        alert('Patient deleted');
+                        $('#detailCard').hide();
+                        $('#resultsCard').show();
+                        $('#searchForm').submit();
+                    } else {
+                        alert('Error deleting patient');
+                    }
+                },
+                error: () => alert('Delete failed')
+            });
+        }
+    });
 
-function updateRemoveButtons() {
-    $('.removeMedicationBtn').hide();
-    if ($('.medication-group').length > 1) {
-        $('.removeMedicationBtn').show();
-    }
-}
-
-$(document).on('click', '#addMedicationBtn', function () {
-    medicationIndex++;
-
-    const newRow = `
-        <div class="form-group medication-group">
-            <div class="form-row">
+    // Dynamic medication fields
+    $(document).on('click', '#addMedicationBtn', function () {
+        $('#medicationFieldsWrapper').append(`
+            <div class="form-row mb-2 medication-group">
                 <div class="col-md-5">
-                    <label for="Medication_Name_${medicationIndex}">Medication Name ${medicationIndex}</label>
-                    <input type="text" class="form-control" name="Medication_Name[]" id="Medication_Name_${medicationIndex}" required>
+                    <input type="text" class="form-control" name="Medication_Name[]" required placeholder="Medication Name">
                 </div>
                 <div class="col-md-5">
-                    <label for="Medication_Dosage_${medicationIndex}">Dosage ${medicationIndex}</label>
-                    <input type="text" class="form-control" name="Medication_Dosage[]" id="Medication_Dosage_${medicationIndex}" required>
+                    <input type="text" class="form-control" name="Medication_Dosage[]" required placeholder="Dosage">
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="button" class="btn btn-danger btn-sm removeMedicationBtn">Remove</button>
+                    <input type="hidden" class="med-delete-flag" name="delete_medication[]" value="0">
                 </div>
             </div>
-        </div>`;
-    $('#medicationFieldsWrapper').append(newRow);
-    updateRemoveButtons();
-});
-
-$(document).on('click', '.removeMedicationBtn', function () {
-    $(this).closest('.medication-group').remove();
-    updateRemoveButtons();
-});
-
-// ====================
-// File Upload Preview
-// ====================
-let selectedFiles = [];
-
-document.addEventListener("DOMContentLoaded", function () {
-    const fileInput = document.getElementById("Medical_File");
-    const fileListDiv = document.getElementById("selectedFilesList");
-
-    fileInput.addEventListener("change", function () {
-        Array.from(fileInput.files).forEach(file => {
-            if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
-                selectedFiles.push(file);
-            }
-        });
-        updateFileList();
+        `);
     });
 
-    function updateFileList() {
-        fileListDiv.innerHTML = "";
+    $(document).on('click', '.removeMedicationBtn', function () {
+        $(this).closest('.medication-group').remove();
+    });
 
-        selectedFiles.forEach((file, index) => {
-            const fileRow = document.createElement("div");
-            fileRow.classList.add("d-flex", "align-items-center", "mb-2");
+    // Medical Dashboard Form
+    $(document).on('click', '#startAddingMedicalDetails', () => startAdding('#medicalDetailForm', '#noMedicalDataNotice'));
 
-            const nameSpan = document.createElement("span");
-            nameSpan.classList.add("mr-3");
-            nameSpan.textContent = file.name;
-
-            const removeBtn = document.createElement("button");
-            removeBtn.classList.add("btn", "btn-danger", "btn-sm", "ml-2");
-            removeBtn.textContent = "Remove";
-
-            removeBtn.onclick = () => {
-                selectedFiles.splice(index, 1);
-                updateFileList();
-            };
-
-            fileRow.appendChild(nameSpan);
-            fileRow.appendChild(removeBtn);
-            fileListDiv.appendChild(fileRow);
-        });
-
-        const dataTransfer = new DataTransfer();
-        selectedFiles.forEach(file => dataTransfer.items.add(file));
-        fileInput.files = dataTransfer.files;
-    }
-});
-
-// ====================
-// Edit/Cancel for Medical Dashboard
-// ====================
-$(document).ready(function () {
-    const detailForm = $('#medicalDetailForm');
-
-    if (detailForm.length) {
-        $('#editBtn').on('click', function () {
-            detailForm.find('input, textarea, select').prop('readonly', false).prop('disabled', false);
-            $('#addMedicationBtn, #saveBtn, #cancelBtn').show();
+    if ($('#medicalDetailForm').length) {
+        $('#editBtn').click(() => {
+            $('#medicalDetailForm').find('input, textarea, select').prop('readonly', false).prop('disabled', false);
+            $('#addMedicationBtn, #saveBtn, #cancelBtn').removeClass('d-none').show();
             $('#fileUploadSection').removeClass('d-none');
             $('#editBtn').hide();
             $('.deleteFileBtn').show();
             $('.edit-only').removeClass('d-none');
-
             RemovalButton('.removeMedicationBtn', '.med-delete-flag');
             RemovalButton('.deleteFileBtn', '.delete-flag');
         });
 
-        $('#cancelBtn').on('click', function () {
-            location.reload();
-        });
-
-        function RemovalButton(buttonSelector, hiddenInputSelector) {
-            $(document).on('click', buttonSelector, function () {
-                const row = $(this).closest('.form-row, .file-entry');
-                row.find(hiddenInputSelector).val("1");
-                row.addClass('text-muted').fadeTo(300, 0.5);
-                $(this).text("Marked").prop('disabled', true);
-            });
-        }
+        $('#cancelBtn').click(() => location.reload());
     }
-});
 
-// ====================
-// Care Plan Logic
-// ====================
-$(document).ready(function () {
-    if ($('#activitiesWrapper').length) {
-        $('#addActivityBtn').on('click', function () {
-            const newRow = `
-                <div class="form-row mb-2 activity-row">
-                    <div class="col-md-8">
-                        <input type="text" class="form-control" name="activity_name[]" required placeholder="Activity Name">
-                    </div>
-                    <div class="col-md-2 d-flex align-items-center">
-                        <input type="checkbox" name="activity_completed[]" value="1">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-danger remove-activity-btn">Remove</button>
-                    </div>
+    // Care Plan Logic
+    $(document).on('click', '#startAddingCarePlan', () => startAdding('#carePlanForm', '#noCarePlanDataNotice', true));
+
+    $('#addActivityBtn').click(() => {
+        $('#activitiesWrapper').append(`
+            <div class="form-row mb-2 activity-row">
+                <div class="col-md-8">
+                    <input type="text" class="form-control" name="activity_name[]" required placeholder="Activity Name">
                 </div>
-            `;
-            $('#activitiesWrapper').append(newRow);
-        });
-
-        $(document).on('click', '.remove-activity-btn', function () {
-            $(this).closest('.activity-row').remove();
-        });
-    }
-});
-
-$(document).ready(function () {
-    const carePlanForm = $('#carePlanForm');
-
-    if (carePlanForm.length) {
-        carePlanForm.on('submit', function (e) {
-            e.preventDefault();
-
-            $.ajax({
-                url: window.location.href,
-                type: 'POST',
-                data: carePlanForm.serialize(),
-                success: function (response) {
-                    alert('Care plan saved successfully!');
-                    window.location.href = '/care_planner/';
-                },
-                error: function () {
-                    alert('Error saving care plan.');
-                }
-            });
-        });
-    }
-});
-
-$(document).ready(function () {
-    $('#startAddingCarePlan').click(function () {
-        $('#noCarePlanDataNotice').hide();
-        $('#carePlanForm').show();
+                <div class="col-md-2 d-flex align-items-center">
+                    <input type="checkbox" name="activity_completed[]" value="1">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger remove-activity-btn">Remove</button>
+                </div>
+            </div>
+        `).find('input[name="activity_name[]"]').last().focus();
     });
-});
 
-$('#cancelCarePlanBtn').click(function () {
-    location.reload();
-});
+    $(document).on('click', '.remove-activity-btn', function () {
+        $(this).closest('.activity-row').remove();
+    });
 
-$(document).ready(function () {
-    $('#editCarePlanBtn').click(function () {
+    $('#editCarePlanBtn').click(() => {
         $('#carePlanForm input:not([name="Medication_Name\\[\\]"]):not([name="Medication_Dosage\\[\\]"]), #carePlanForm textarea, #carePlanForm select')
             .prop('readonly', false)
             .prop('disabled', false);
-
         $('.edit-only').removeClass('d-none');
         $('#editCarePlanBtn').hide();
         $('#saveCarePlanBtn').show();
-        $('#editOnlySection').removeClass('d-none');
         $('#cancelCarePlanBtn').show();
-  });
-});
+    });
 
+    $('#cancelCarePlanBtn').click(() => location.reload());
+
+    $('#carePlanForm').submit(function (e) {
+        e.preventDefault();
+        $.ajax({
+            url: window.location.href,
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function () {
+                alert('Care plan saved successfully!');
+                window.location.href = '/care_planner/';
+            },
+            error: function () {
+                alert('Error saving care plan.');
+            }
+        });
+    });
+});

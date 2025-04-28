@@ -15,7 +15,9 @@ from .authentication_service import *
 # User Login
 @never_cache
 def login(request):
-    list(messages.get_messages(request))
+    storage = messages.get_messages(request)
+    list(storage)
+
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -25,6 +27,7 @@ def login(request):
         if user and verify_password(user[0], password):
             request.session['username'] = username
             request.session['role'] = user[1]
+            request.session['_session_init'] = True
             return redirect('home')
         else:
             return render(request, 'login.html', {'error': 'Invalid credentials'})
@@ -236,39 +239,43 @@ def patient_medical_dashboard_details(request, patient_id):
 
     decrypted_patient = decrypt_patient_data([selected[0]], key)[0]
 
+    medical_info = patient_medical_dashboard_info(patient_id)
+
     if request.method == "POST":
         names = request.POST.getlist('Medication_Name[]')
         dosages = request.POST.getlist('Medication_Dosage[]')
         history = request.POST.get('Medical_History_Text')
         allergies = request.POST.get('Allergies')
 
-        uploaded_files = request.FILES.getlist("Medical_File")
+        uploaded_files = request.FILES.getlist('Medical_File')
         medical_files = [f.read() for f in uploaded_files]
         file_names = [f.name for f in uploaded_files]
 
-        update_patient_medical_info(
-            patient_id=patient_id,
-            names=names,
-            dosages=dosages,
-            history=history,
-            new_files=medical_files,
-            new_file_names=file_names,
-            allergies=allergies,
-            delete_flags=request.POST
-        )
+        if medical_info:
+            update_patient_medical_info(
+                patient_id=patient_id,
+                names=names,
+                dosages=dosages,
+                history=history,
+                new_files=medical_files,
+                new_file_names=file_names,
+                allergies=allergies,
+                delete_flags=request.POST
+            )
+        else:
+            add_patient_medical_info(
+                patient_id,
+                names,
+                dosages,
+                history,
+                medical_files,
+                file_names,
+                allergies
+            )
 
         return redirect("patient_medical_dashboard_details", patient_id=patient_id)
 
-    medical_info = patient_medical_dashboard_info(patient_id)
-
-    has_data = (
-        medical_info and (
-            medical_info.get('medications') or
-            medical_info.get('history') or
-            medical_info.get('allergies') or
-            medical_info.get('files')
-        )
-    )
+    has_data = bool(medical_info)
 
     return render(request, "patient_medical_dashboard_details.html", {
         "patient": {
@@ -419,7 +426,6 @@ def patient_care_planner_details(request, patient_id):
 
     care_plan = get_care_plan(patient_id)
 
-    # NEW PART: fetch medications
     medical_info = get_medication(patient_id)
 
     if request.method == "POST":

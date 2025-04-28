@@ -13,10 +13,12 @@ class LoginRequiredMiddleware:
             return self.get_response(request)
 
         if not request.session.get('username'):
-            if not request.path.startswith('/login/'):
+            if (not request.path.startswith('/login/') and not request.session.get('already_warned') and request.session.get('_session_init')):
                 messages.warning(request, "Your session has expired. Please log in again.")
+                request.session['already_warned'] = True
             return redirect('login')
 
+        request.session.pop('already_warned', None)
         return self.get_response(request)
 
 class NoCacheMiddleware(MiddlewareMixin):

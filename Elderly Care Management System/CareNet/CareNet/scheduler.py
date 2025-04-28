@@ -13,6 +13,6 @@ def scheduled_reencryption_job():
 
 def start():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(scheduled_reencryption_job, 'cron', day_of_week='Sat', hour=22, minute=30)
+    scheduler.add_job(scheduled_reencryption_job, 'cron', day_of_week='Mon', hour=00, minute=40)
     scheduler.start()
     print("Re-encryption scheduler started.")

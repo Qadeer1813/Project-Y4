@@ -1,8 +1,8 @@
 # Elderly Care Management System
 
-Project Author: Qadeer Hussain
-SETU Carlow
-Date: 28/04/2025
+**Project Author: Qadeer Hussain**
+**SETU Carlow**
+**Date: 28/04/2025**
 
 # NOTE
 
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS key_management (
   Is_Valid tinyint(1) DEFAULT 1,
   Created_At datetime DEFAULT current_timestamp(),
   PRIMARY KEY (Key_ID)
-) 
+); 
 
 ```
 Thank you

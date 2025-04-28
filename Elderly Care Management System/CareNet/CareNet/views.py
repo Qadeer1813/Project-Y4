@@ -298,50 +298,6 @@ def download_medical_file(request, patient_id, file_index):
     file_stream = io.BytesIO(file["data"])
     return FileResponse(file_stream, as_attachment=True, filename=file["filename"])
 
-# Add Patient Medical Details
-@never_cache
-def add_patient_medical_details(request, patient_id):
-    key = get_encryption_key()
-    patient_data = search_patient(key=key)
-
-    selected = [p for p in patient_data if p[0] == patient_id]
-    if not selected:
-        return HttpResponse("Patient not found", status=404)
-
-    decrypted = decrypt_patient_data([selected[0]], key)[0]
-
-    if request.method == 'POST':
-        names = request.POST.getlist('Medication_Name[]')
-        dosages = request.POST.getlist('Medication_Dosage[]')
-        allergies = request.POST.get('Allergies')
-        medical_history_text = request.POST.get('Medical_History_Text')
-        uploaded_files = request.FILES.getlist('Medical_File')
-        medical_files = [file.read() for file in uploaded_files if file]
-        medical_filenames = [file.name for file in uploaded_files if file]
-
-        success = add_patient_medical_info(
-            patient_id,
-            names,
-            dosages,
-            medical_history_text,
-            medical_files,
-            medical_filenames,
-            allergies
-        )
-
-        if not success:
-            return HttpResponse("Something went wrong while saving", status=500)
-
-        return redirect('medical_dashboard')
-
-    return render(request, 'add_patient_medical_details.html', {
-        'patient': {
-            'Patient_ID': decrypted[0],
-            'Name': decrypted[1],
-            'DOB': decrypted[2]
-        }
-    })
-
 # Roster view
 def roster_view(request):
     rosters = roster_entries()

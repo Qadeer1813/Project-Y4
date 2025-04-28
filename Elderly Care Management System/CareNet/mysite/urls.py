@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from CareNet.views import (login, logout, create_user_view, home, create_patient_profile, search_patient_profile, update_patient_profile, delete_patient_profile,
-                           medical_dashboard, patient_medical_dashboard_details, download_medical_file, add_patient_medical_details, maintenance_mode, roster_view,
+                           medical_dashboard, patient_medical_dashboard_details, download_medical_file, maintenance_mode, roster_view,
                            add_roster_view, delete_roster_view, maintenance_status, care_planner_search, patient_care_planner_details)
 from django.views.generic import RedirectView
 from django.conf import settings

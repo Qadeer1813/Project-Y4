@@ -273,7 +273,7 @@ def patient_medical_dashboard_details(request, patient_id):
                 allergies
             )
 
-        return redirect("patient_medical_dashboard_details", patient_id=patient_id)
+        return redirect("medical_dashboard")
 
     has_data = bool(medical_info)
 

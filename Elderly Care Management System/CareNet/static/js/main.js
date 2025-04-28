@@ -79,6 +79,7 @@ function startAdding(formSelector, noticeSelector, showEditSection = false) {
     if (showEditSection) {
         $('#editOnlySection').removeClass('d-none');
     }
+    $('#addMedicationBtn').removeClass('d-none');
 }
 
 function RemovalButton(buttonSelector, hiddenInputSelector) {

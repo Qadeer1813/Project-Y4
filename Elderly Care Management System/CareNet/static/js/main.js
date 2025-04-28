@@ -80,6 +80,7 @@ function startAdding(formSelector, noticeSelector, showEditSection = false) {
         $('#editOnlySection').removeClass('d-none');
     }
     $('#addMedicationBtn').removeClass('d-none');
+    $('#fileUploadSection').removeClass('d-none');
 }
 
 function RemovalButton(buttonSelector, hiddenInputSelector) {
@@ -228,6 +229,62 @@ $(document).ready(function () {
 
         $('#cancelBtn').click(() => location.reload());
     }
+
+    // File preview
+    let selectedFiles = [];
+
+    $(document).on('change', '#Medical_File', function(event) {
+        const newFiles = Array.from(event.target.files);
+
+        selectedFiles = [...selectedFiles, ...newFiles];
+
+        updateFileInput();
+        renderSelectedFiles();
+    });
+
+    function updateFileInput() {
+        const dataTransfer = new DataTransfer();
+
+        selectedFiles.forEach(file => {
+            dataTransfer.items.add(file);
+        });
+
+        document.getElementById('Medical_File').files = dataTransfer.files;
+    }
+
+    function renderSelectedFiles() {
+        if (selectedFiles.length > 0) {
+            let output = '<ul class="list-group">';
+            selectedFiles.forEach((file, index) => {
+                output += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${file.name}
+                        <button type="button" class="btn btn-sm btn-danger remove-selected-file" data-index="${index}">Remove</button>
+                    </li>
+                `;
+            });
+            output += '</ul>';
+            $('#selectedFilesList').html(output);
+        } else {
+            $('#selectedFilesList').empty();
+        }
+    }
+
+    $(document).on('click', '.remove-selected-file', function() {
+        const index = $(this).data('index');
+        selectedFiles.splice(index, 1);
+
+        updateFileInput();
+        renderSelectedFiles();
+    });
+
+    $('#fileUploadSection').append('<button type="button" class="btn btn-outline-secondary mt-2" id="clearFiles">Clear All Files</button>');
+
+    $(document).on('click', '#clearFiles', function() {
+        selectedFiles = [];
+        updateFileInput();
+        renderSelectedFiles();
+    });
 
     // Care Plan Logic
     $(document).on('click', '#startAddingCarePlan', () => startAdding('#carePlanForm', '#noCarePlanDataNotice', true));

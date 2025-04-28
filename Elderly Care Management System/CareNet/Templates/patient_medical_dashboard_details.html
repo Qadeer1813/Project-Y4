@@ -14,96 +14,107 @@
 </nav>
 
 <div class="container mt-4">
-    <h3>Medical Details - {{ patient.Name }}</h3>
-    <p><strong>Date of Birth:</strong> {{ patient.DOB }}</p>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="mb-0">Medical Details - {{ patient.Name }}</h3>
+            <p class="mb-0"><strong>Date of Birth:</strong> {{ patient.DOB }}</p>
+        </div>
 
-    {% if not has_data %}
-    <div class="alert alert-info d-flex justify-content-between align-items-center" id="noMedicalDataNotice">
-        <span>No medical data found for this patient. Would you like to add medical details?</span>
-        <button id="startAddingMedicalDetails" class="btn btn-sm btn-outline-primary ml-3">Add Medical Details</button>
-    </div>
-    {% endif %}
+        <div class="card-body">
 
-    <form method="POST" enctype="multipart/form-data" id="medicalDetailForm" {% if not has_data %}style="display:none;"{% endif %}>
-        {% csrf_token %}
-
-        <div class="form-group">
-            <label>Medications</label>
-            <div id="medicationFieldsWrapper">
-                {% if medical_info and medical_info.medications %}
-                    {% for med in medical_info.medications %}
-                    <div class="form-row mb-2 medication-group">
-                        <div class="col-md-5">
-                            <input type="text" class="form-control" name="Medication_Name[]" value="{{ med.name }}" {% if has_data %}readonly{% endif %} required>
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" class="form-control" name="Medication_Dosage[]" value="{{ med.dosage }}" {% if has_data %}readonly{% endif %} required>
-                        </div>
-                        <div class="col-md-2 d-none edit-only">
-                            <button type="button" class="btn btn-danger btn-sm removeMedicationBtn">Remove</button>
-                            <input type="hidden" class="med-delete-flag" name="delete_medication[]" value="0">
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="form-row mb-2 medication-group">
-                        <div class="col-md-5">
-                            <input type="text" class="form-control" name="Medication_Name[]" placeholder="Medication Name" required>
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" class="form-control" name="Medication_Dosage[]" placeholder="Dosage" required>
-                        </div>
-                        <div class="col-md-2 d-none edit-only">
-                            <button type="button" class="btn btn-danger btn-sm removeMedicationBtn">Remove</button>
-                            <input type="hidden" class="med-delete-flag" name="delete_medication[]" value="0">
-                        </div>
-                    </div>
-                {% endif %}
+            {% if not has_data %}
+            <div class="alert alert-info d-flex justify-content-between align-items-center" id="noMedicalDataNotice">
+                <span>No medical data found for this patient. Would you like to add medical details?</span>
+                <button id="startAddingMedicalDetails" class="btn btn-sm btn-outline-primary ml-3">Add Medical Details</button>
             </div>
-            <button type="button" class="btn btn-outline-primary btn-sm mt-2 d-none" id="addMedicationBtn">Add Medication</button>
-        </div>
+            {% endif %}
 
-        <div class="form-group">
-            <label>Medical History</label>
-            <textarea class="form-control" name="Medical_History_Text" rows="4" {% if has_data %}readonly{% endif %}>{{ medical_info.history|default_if_none:"" }}</textarea>
-        </div>
+            <form method="POST" enctype="multipart/form-data" id="medicalDetailForm" {% if not has_data %}style="display:none;"{% endif %}>
+                {% csrf_token %}
 
-        <div class="form-group">
-            <label>Allergies</label>
-            <input type="text" class="form-control" name="Allergies" value="{{ medical_info.allergies|default_if_none:"" }}" {% if has_data %}readonly{% endif %}>
-        </div>
-
-        {% if medical_info and medical_info.files %}
-        <div class="form-group">
-            <label>Existing Files</label>
-            <ul class="list-group" id="fileListGroup">
-                {% for file in medical_info.files %}
-                <li class="list-group-item d-flex justify-content-between align-items-center file-entry">
-                    <span>{{ file.filename }}</span>
-                    <div>
-                        <a href="{% url 'download_medical_file' patient.Patient_ID forloop.counter0 %}" class="btn btn-sm btn-outline-secondary">Download</a>
-                        <button type="button" class="btn btn-sm btn-outline-danger ml-2 deleteFileBtn d-none">Remove</button>
-                        <input type="hidden" name="delete_file_{{ file.id }}" value="0" class="delete-flag">
+                <div class="form-group">
+                    <label>Medications</label>
+                    <div id="medicationFieldsWrapper">
+                        {% if medical_info and medical_info.medications %}
+                            {% for med in medical_info.medications %}
+                            <div class="form-row mb-2 medication-group">
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control" name="Medication_Name[]" value="{{ med.name }}" {% if has_data %}readonly{% endif %} required>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control" name="Medication_Dosage[]" value="{{ med.dosage }}" {% if has_data %}readonly{% endif %} required>
+                                </div>
+                                <div class="col-md-2 d-none edit-only">
+                                    <button type="button" class="btn btn-danger btn-sm removeMedicationBtn">Remove</button>
+                                    <input type="hidden" class="med-delete-flag" name="delete_medication[]" value="0">
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="form-row mb-2 medication-group">
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control" name="Medication_Name[]" placeholder="Medication Name" required>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control" name="Medication_Dosage[]" placeholder="Dosage" required>
+                                </div>
+                                <div class="col-md-2 d-none edit-only">
+                                    <button type="button" class="btn btn-danger btn-sm removeMedicationBtn">Remove</button>
+                                    <input type="hidden" class="med-delete-flag" name="delete_medication[]" value="0">
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
-                </li>
-                {% endfor %}
-            </ul>
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-2 d-none" id="addMedicationBtn">Add Medication</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Medical History</label>
+                    <textarea class="form-control" name="Medical_History_Text" rows="4" {% if has_data %}readonly{% endif %}>{{ medical_info.history|default_if_none:"" }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Allergies</label>
+                    <input type="text" class="form-control" name="Allergies" value="{{ medical_info.allergies|default_if_none:"" }}" {% if has_data %}readonly{% endif %}>
+                </div>
+
+                {% if medical_info and medical_info.files %}
+                <div class="form-group">
+                    <label>Existing Files</label>
+                    <ul class="list-group" id="fileListGroup">
+                        {% for file in medical_info.files %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center file-entry">
+                            <span>{{ file.filename }}</span>
+                            <div>
+                                <a href="{% url 'download_medical_file' patient.Patient_ID forloop.counter0 %}" class="btn btn-sm btn-outline-secondary">Download</a>
+                                <button type="button" class="btn btn-sm btn-outline-danger ml-2 deleteFileBtn d-none">Remove</button>
+                                <input type="hidden" name="delete_file_{{ file.id }}" value="0" class="delete-flag">
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div id="fileUploadSection" class="form-group d-none">
+                    <label for="Medical_File">Upload New Files</label>
+                    <input type="file" name="Medical_File" id="Medical_File" class="form-control-file" multiple>
+                    <div id="selectedFilesList" class="mt-3"></div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success w-100" id="saveBtn" {% if has_data %}style="display:none;"{% endif %}>Save</button>
+                    <button type="button" class="btn btn-secondary w-100 mt-2" id="cancelBtn" style="display:none;">Cancel</button>
+
+                    {% if has_data %}
+                        <button type="button" class="btn btn-primary w-100 mt-2" id="editBtn">Edit</button>
+                    {% endif %}
+                </div>
+
+            </form>
+
         </div>
-        {% endif %}
-
-        <div id="fileUploadSection" class="form-group d-none">
-            <label for="Medical_File">Upload New Files</label>
-            <input type="file" name="Medical_File" id="Medical_File" class="form-control-file" multiple>
-            <div id="selectedFilesList" class="mt-3"></div>
-        </div>
-
-        <button type="submit" class="btn btn-success mt-3" id="saveBtn" {% if has_data %}style="display:none;"{% endif %}>Save</button>
-        <button type="button" class="btn btn-secondary mt-3" id="cancelBtn" style="display:none;">Cancel</button>
-
-        {% if has_data %}
-            <button type="button" class="btn btn-warning mt-3" id="editBtn">Edit</button>
-        {% endif %}
-    </form>
+    </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'js/main.js' %}"></script>

@@ -80,6 +80,22 @@ CREATE TABLE IF NOT EXISTS medical_files (
         ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS roster (
+    Roster_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Day TEXT NOT NULL,
+    Shift_Time TEXT NOT NULL,
+    Carer TEXT NOT NULL,
+    Patient TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS care_planner (
+    Care_Planner_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Patient_ID INT NOT NULL,
+    Daily_Activities TEXT NOT NULL,
+    Notes TEXT NOT NULL,
+    FOREIGN KEY (Patient_ID) REFERENCES patient_profile(Patient_ID) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS `users` (
   `User_Id` int(11) NOT NULL AUTO_INCREMENT,
   `Username` varchar(100) NOT NULL,
@@ -88,6 +104,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`User_Id`),
   UNIQUE KEY `Username` (`Username`)
 );
+
+
 ```
 
 In the Key Server database run the following SQL Query

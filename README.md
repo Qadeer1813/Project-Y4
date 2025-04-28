@@ -1,7 +1,9 @@
-# Elderly Care Management System
+# Elderly Care Management System Care Net
 
 **Project Author: Qadeer Hussain**
+
 **SETU Carlow**
+
 **Date: 28/04/2025**
 
 # NOTE

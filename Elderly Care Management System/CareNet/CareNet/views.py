@@ -312,11 +312,7 @@ def add_roster_view(request):
         carer = request.POST.get('Carer')
         patient = request.POST.get('Patient')
 
-        if add_roster(day, shift_time, carer, patient):
-            messages.success(request, "Roster entry added successfully")
-        else:
-            messages.error(request, "Roster entry could not be added")
-
+        add_roster(day, shift_time, carer, patient)
         return redirect('roster')
 
     carers = get_carers()
@@ -327,10 +323,7 @@ def add_roster_view(request):
 @never_cache
 def delete_roster_view(request, roster_id):
     if request.method == 'POST':
-        if delete_roster(roster_id):
-            messages.success(request, "Roster entry deleted successfully")
-        else:
-            messages.error(request, "Roster entry could not be deleted")
+        delete_roster(roster_id)
         return redirect('roster')
 
 # Care Planner Search

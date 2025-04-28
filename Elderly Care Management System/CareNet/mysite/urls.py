@@ -37,7 +37,6 @@ urlpatterns = [
     path('medical-dashboard/', medical_dashboard, name='medical_dashboard'),
     path('medical-dashboard/details/<int:patient_id>/', patient_medical_dashboard_details, name='patient_medical_dashboard_details'),
     path('medical-dashboard/download/<int:patient_id>/<int:file_index>/', download_medical_file, name='download_medical_file'),
-    # path('medical-dashboard/add/<int:patient_id>/', add_patient_medical_details, name='add_patient_medical_details'),
     path('roster/', roster_view, name='roster'),
     path('roster/add', add_roster_view, name='add_roster'),#
     path('roster/delete/<int:roster_id>/', delete_roster_view, name='delete_roster'),
